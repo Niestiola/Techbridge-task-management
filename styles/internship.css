@@ -1,5 +1,5 @@
-/* Internship Tasks page styles
-   This file defines the layout for the TechBridge Internship Tasks experience.
+/* Internship roadmap page styles
+   This file defines the layout for the TechBridge Interactive Internship Roadmap.
    The structure is intentionally simple so it stays easy to debug and maintain.
 */
 
@@ -146,11 +146,66 @@
   margin-bottom: 24px;
 }
 
+/* Track selector: active state uses the existing TechBridge green and indigo palette. */
+.track-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.track-button {
+  appearance: none;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 12px 22px;
+  background: var(--white);
+  color: var(--indigo);
+  font: 700 1rem/1.2 var(--text);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.track-button:hover {
+  border-color: var(--green);
+  transform: translateY(-2px);
+}
+
+.track-button[aria-pressed="true"] {
+  border-color: var(--indigo);
+  background: var(--indigo);
+  color: var(--white);
+}
+
+.track-button:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+
+.current-track {
+  margin-bottom: 6px;
+  font-family: var(--display);
+  font-size: 1.125rem;
+  font-weight: 900;
+  color: var(--indigo);
+}
+
+.track-hint {
+  margin-bottom: 24px;
+  color: var(--muted);
+}
+
+/* The live region updates when JavaScript renders the selected track's tasks. */
 .timeline {
   position: relative;
   display: grid;
   gap: 22px;
   padding-left: 20px;
+  transition: opacity 0.2s ease;
 }
 
 .timeline::before {
@@ -171,6 +226,16 @@
   border: 1px solid var(--line);
   padding: 22px 24px 20px;
   box-shadow: 0 18px 40px rgba(13, 0, 77, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  border-color: #bcb7db;
+  box-shadow: 0 22px 44px rgba(13, 0, 77, 0.1);
 }
 
 .task-card::before {
@@ -235,6 +300,13 @@
   font-size: 0.78rem;
 }
 
+.no-script-note {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--lavender);
+  color: var(--muted);
+}
+
 .next-steps {
   display: flex;
   align-items: center;
@@ -274,6 +346,15 @@
 
 /* Mobile layout: maintain spacing and card readability on small screens. */
 @media (max-width: 620px) {
+  .track-picker {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .track-button {
+    width: 100%;
+  }
+
   .journey-stats {
     grid-template-columns: 1fr;
   }
@@ -290,5 +371,19 @@
 
   .timeline::before {
     left: 8px;
+  }
+}
+
+/* Respect system motion preferences by disabling decorative transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .track-button,
+  .timeline,
+  .task-card {
+    transition: none;
+  }
+
+  .track-button:hover,
+  .task-card:hover {
+    transform: none;
   }
 }
