@@ -123,6 +123,13 @@ function createChallengeCard(challenge) {
   button.textContent = "View challenge";
   button.addEventListener("click", () => openChallenge(challenge));
 
+  // Open the same centered details dialog when the card itself is clicked.
+  card.addEventListener("click", (event) => {
+    if (!event.target.closest(".view-challenge")) {
+      openChallenge(challenge);
+    }
+  });
+
   meta.append(track, difficulty);
   card.append(meta, title, description, button);
   return card;

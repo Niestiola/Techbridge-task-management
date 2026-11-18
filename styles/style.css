@@ -1456,12 +1456,35 @@ h3,
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
+/* Modal */
 
+.challenge-dialog {
+  width: min(760px, 90vw);
+  max-height: 90vh;
+  border: none;
+  border-radius: 32px;
+  padding: 0;
+  margin: auto;
+}
+
+.challenge-dialog[open] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.challenge-dialog::backdrop {
+  background: rgba(45, 34, 103, 0.7);
+  backdrop-filter: blur(4px);
+}
+/* <!-- Modal --> */
 .challenge-card {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   gap: 14px;
   min-height: 310px;
+  cursor: pointer;
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1538,7 +1561,9 @@ h3,
   font: 800 0.95rem var(--text);
   padding: 10px 18px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .view-challenge:hover {
@@ -1705,7 +1730,6 @@ h3,
   }
 }
 
-
 /* ==========================================================================
    PROGRAMS PAGE STYLES
    Consolidated from the former page-specific stylesheet.
@@ -1827,11 +1851,21 @@ h3,
 .bars span:nth-child(even) {
   background: var(--indigo);
 }
-.bars span:nth-child(1) { height: 40%; }
-.bars span:nth-child(2) { height: 70%; }
-.bars span:nth-child(3) { height: 55%; }
-.bars span:nth-child(4) { height: 95%; }
-.bars span:nth-child(5) { height: 75%; }
+.bars span:nth-child(1) {
+  height: 40%;
+}
+.bars span:nth-child(2) {
+  height: 70%;
+}
+.bars span:nth-child(3) {
+  height: 55%;
+}
+.bars span:nth-child(4) {
+  height: 95%;
+}
+.bars span:nth-child(5) {
+  height: 75%;
+}
 
 .vis-code {
   right: 0;
@@ -1855,8 +1889,12 @@ h3,
   border-radius: 50%;
   background: var(--green);
 }
-.dots i:nth-child(2) { background: var(--green-soft); }
-.dots i:nth-child(3) { background: var(--lilac); }
+.dots i:nth-child(2) {
+  background: var(--green-soft);
+}
+.dots i:nth-child(3) {
+  background: var(--lilac);
+}
 .lines {
   display: grid;
   gap: 10px;
@@ -1870,13 +1908,35 @@ h3,
   margin-left: var(--m, 0);
   background: var(--lilac);
 }
-.lines span:nth-child(1) { --w: 55%; background: var(--green); }
-.lines span:nth-child(2) { --w: 80%; --m: 8%; }
-.lines span:nth-child(3) { --w: 60%; --m: 8%; background: var(--green-soft); }
-.lines span:nth-child(4) { --w: 70%; --m: 16%; }
-.lines span:nth-child(5) { --w: 40%; background: var(--green); }
-.lines span:nth-child(6) { --w: 65%; --m: 8%; }
-.lines span:nth-child(7) { --w: 35%; background: var(--green-soft); }
+.lines span:nth-child(1) {
+  --w: 55%;
+  background: var(--green);
+}
+.lines span:nth-child(2) {
+  --w: 80%;
+  --m: 8%;
+}
+.lines span:nth-child(3) {
+  --w: 60%;
+  --m: 8%;
+  background: var(--green-soft);
+}
+.lines span:nth-child(4) {
+  --w: 70%;
+  --m: 16%;
+}
+.lines span:nth-child(5) {
+  --w: 40%;
+  background: var(--green);
+}
+.lines span:nth-child(6) {
+  --w: 65%;
+  --m: 8%;
+}
+.lines span:nth-child(7) {
+  --w: 35%;
+  background: var(--green-soft);
+}
 .vis-code .vis-tag {
   position: absolute;
   right: 16px;
@@ -1953,7 +2013,9 @@ h3,
 /* Hover and focus: the card gets a shadow and lifts a little (lifting only if motion is allowed) */
 .path,
 .choice {
-  transition: box-shadow 0.25s ease, background 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    background 0.25s ease;
 }
 .path:hover,
 .path:focus-within {
@@ -1961,7 +2023,9 @@ h3,
 }
 @media (prefers-reduced-motion: no-preference) {
   .path {
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
   }
   .path:hover,
   .path:focus-within {
@@ -2310,7 +2374,6 @@ h3,
   }
 }
 
-
 /* ==========================================================================
    INTERNSHIP ROADMAP PAGE STYLES
    Consolidated from the former page-specific stylesheet.
@@ -2533,7 +2596,11 @@ h3,
   top: 10px;
   bottom: 10px;
   width: 2px;
-  background: linear-gradient(180deg, rgba(57, 184, 10, 0.8), rgba(13, 0, 77, 0.2));
+  background: linear-gradient(
+    180deg,
+    rgba(57, 184, 10, 0.8),
+    rgba(13, 0, 77, 0.2)
+  );
 }
 
 .task-card {
