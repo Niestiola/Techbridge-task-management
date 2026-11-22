@@ -1016,11 +1016,11 @@ h3,
   }
 }
 
-/* ---------- HEADER ON TABLETS AND PHONES (980px and below) ----------
+/* ---------- HEADER ON TABLETS AND PHONES (1180px and below) ----------
    There are six links now, so on smaller screens they move into a menu.
    The bar becomes: menu icon | logo | Apply now.
    The menu works with a hidden checkbox, so it needs no JavaScript. */
-@media (max-width: 980px) {
+@media (max-width: 1180px) {
   .bar {
     gap: 8px;
     padding: 10px calc(var(--pad) - 6px) 16px;
@@ -2770,5 +2770,618 @@ h3,
   .track-button:hover,
   .task-card:hover {
     transform: none;
+  }
+}
+
+/* Dashboard page styles */
+.page-dashboard {
+  background: #faf9fd;
+}
+
+.page-dashboard .dashboard-welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  padding: 58px var(--pad) 62px;
+  color: #fff;
+  background:
+    radial-gradient(ellipse at 87% 14%, rgba(143, 224, 108, 0.21), transparent 30%),
+    linear-gradient(120deg, #0d004d, #21136b);
+}
+
+.page-dashboard .welcome-copy h1 {
+  margin-top: 12px;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+}
+
+.page-dashboard .welcome-copy h1 span {
+  color: #a4e888;
+}
+
+.page-dashboard .welcome-track {
+  margin-top: 16px;
+  color: #e6e3f7;
+}
+
+.page-dashboard .welcome-track strong {
+  color: #fff;
+}
+
+.page-dashboard .welcome-message {
+  margin-top: 10px;
+  color: #d7d2ef;
+}
+
+.page-dashboard .intern-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 0 0 auto;
+  padding: 18px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.page-dashboard .status-pulse {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: #8fe06c;
+  box-shadow: 0 0 0 5px rgba(143, 224, 108, 0.15);
+}
+
+.page-dashboard .status-label, .page-dashboard .preview-label {
+  color: #c8c2e6;
+  font-size: 0.82rem;
+}
+
+.page-dashboard .status-value {
+  margin-top: 2px;
+  font-weight: 700;
+}
+
+.page-dashboard .status-days {
+  margin-top: 3px;
+  color: #d7d2ef;
+  font-size: 0.85rem;
+}
+
+.page-dashboard .dashboard-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+  align-items: start;
+  gap: 24px;
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: 42px var(--pad) 76px;
+}
+
+.page-dashboard .progress-panel, .page-dashboard .tasks-panel, .page-dashboard .tech-panel, .page-dashboard .challenge-panel {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid #e8e5f1;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(13, 0, 77, 0.045);
+}
+
+.page-dashboard .progress-panel {
+  grid-column: 1 / -1;
+}
+
+.page-dashboard .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-dashboard .section-heading h2 {
+  margin-top: 5px;
+  font-size: clamp(1.45rem, 3vw, 1.9rem);
+}
+
+.page-dashboard .progress-percent {
+  color: var(--green-text);
+  font: 900 1.9rem/1 var(--display);
+}
+
+.page-dashboard .progress-track {
+  height: 12px;
+  margin-top: 24px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #eeedf4;
+}
+
+.page-dashboard .progress-fill {
+  display: block;
+  width: 25%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #39b80a, #8fe06c);
+  transition: width 240ms ease;
+}
+
+.page-dashboard .progress-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.page-dashboard .progress-stats div {
+  display: grid;
+  gap: 3px;
+}
+
+.page-dashboard .progress-stats strong {
+  font: 900 1.65rem/1 var(--display);
+}
+
+.page-dashboard .progress-stats span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.page-dashboard .text-link {
+  flex: 0 0 auto;
+  color: var(--green-text);
+  font-weight: 700;
+  text-underline-offset: 4px;
+}
+
+.page-dashboard .task-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.page-dashboard .filter-button, .page-dashboard .tech-option, .page-dashboard .backend-option {
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid #e4e1ee;
+  border-radius: 999px;
+  color: var(--indigo);
+  background: #fff;
+  font: 700 0.86rem/1.2 var(--text);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.page-dashboard .filter-button span {
+  margin-left: 4px;
+  color: #77748d;
+  font-size: 0.77rem;
+}
+
+.page-dashboard .filter-button[aria-pressed="true"], .page-dashboard .tech-option[aria-pressed="true"], .page-dashboard .backend-option[aria-pressed="true"] {
+  border-color: var(--indigo);
+  color: #fff;
+  background: var(--indigo);
+}
+
+.page-dashboard .filter-button[aria-pressed="true"] span {
+  color: #d7d2ef;
+}
+
+.page-dashboard .filter-button:hover, .page-dashboard .tech-option:hover, .page-dashboard .backend-option:hover {
+  border-color: var(--green-text);
+}
+
+.page-dashboard .task-results {
+  margin: 17px 0 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.page-dashboard .task-list {
+  display: grid;
+  gap: 10px;
+}
+
+.page-dashboard .task-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 17px;
+  border: 1px solid #eceaf2;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.page-dashboard .task-number {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  color: #267d06;
+  background: #e8f7e0;
+  font: 900 0.92rem var(--display);
+}
+
+.page-dashboard .task-card[data-status="Completed"] .task-number {
+  color: #fff;
+  background: var(--green-text);
+}
+
+.page-dashboard .task-card[data-status="In Progress"] .task-number {
+  color: var(--indigo);
+  background: #e6e3f7;
+}
+
+.page-dashboard .task-copy {
+  min-width: 0;
+}
+
+.page-dashboard .task-copy h3 {
+  font-size: 1.05rem;
+}
+
+.page-dashboard .task-copy p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.page-dashboard .task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+}
+
+.page-dashboard .task-meta span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.page-dashboard .task-status {
+  padding: 3px 8px;
+  border-radius: 99px;
+  color: var(--indigo) !important;
+  background: #f0eff5;
+  font-weight: 700;
+}
+
+.page-dashboard .task-card[data-status="Completed"] .task-status {
+  color: #267d06 !important;
+  background: #e8f7e0;
+}
+
+.page-dashboard .task-card[data-status="In Progress"] .task-status {
+  color: #433487 !important;
+  background: #eae7f8;
+}
+
+.page-dashboard .task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.page-dashboard .task-actions button, .page-dashboard .dialog-action {
+  border: 0;
+  cursor: pointer;
+  font: 700 0.82rem/1.2 var(--text);
+}
+
+.page-dashboard .view-task {
+  padding: 9px 11px;
+  border-radius: 9px;
+  color: var(--indigo);
+  background: #f4f3fb;
+}
+
+.page-dashboard .complete-task {
+  padding: 9px 12px;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--green-text);
+}
+
+.page-dashboard .complete-task:disabled {
+  color: #267d06;
+  background: #e8f7e0;
+  cursor: default;
+}
+
+.page-dashboard .empty-tasks {
+  padding: 24px 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.page-dashboard .panel-intro {
+  margin-top: 13px;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+
+.page-dashboard .tech-options, .page-dashboard .backend-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.page-dashboard .backend-options {
+  padding-top: 14px;
+  border-top: 1px solid #eeedf4;
+}
+
+.page-dashboard .tech-option {
+  min-height: 38px;
+  padding-inline: 12px;
+  font-size: 0.82rem;
+}
+
+.page-dashboard .backend-option {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 0.78rem;
+}
+
+.page-dashboard .tech-detail {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #f4f3fb;
+}
+
+.page-dashboard .tech-kicker {
+  color: var(--green-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-dashboard .tech-detail h3 {
+  margin-top: 6px;
+  font-size: 1.4rem;
+}
+
+.page-dashboard .tech-detail > p:not(.tech-kicker) {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.page-dashboard .tech-detail .tech-focus {
+  color: var(--indigo) !important;
+}
+
+.page-dashboard .challenge-panel {
+  display: grid;
+  align-content: space-between;
+  gap: 24px;
+  min-height: 100%;
+  color: #fff;
+  border-color: #21136b;
+  background:
+    radial-gradient(ellipse at 100% 0, rgba(143, 224, 108, 0.2), transparent 40%),
+    #0d004d;
+}
+
+.page-dashboard .challenge-panel h2 {
+  margin-top: 7px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.page-dashboard .challenge-copy > p:not(.eyebrow) {
+  margin-top: 12px;
+  color: #d7d2ef;
+  font-size: 0.93rem;
+}
+
+.page-dashboard .challenge-copy .btn {
+  margin-top: 20px;
+  padding: 13px 18px;
+  font-size: 0.9rem;
+}
+
+.page-dashboard .challenge-preview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.page-dashboard .preview-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  color: var(--indigo);
+  background: #8fe06c;
+  font: 900 0.9rem var(--display);
+}
+
+.page-dashboard .challenge-preview h3 {
+  margin-top: 2px;
+  font-size: 1rem;
+}
+
+.page-dashboard .challenge-preview div > p:last-child {
+  margin-top: 3px;
+  color: #d7d2ef;
+  font-size: 0.78rem;
+}
+
+.page-dashboard .challenge-preview > a {
+  color: #fff;
+  font-size: 1.3rem;
+  text-decoration: none;
+}
+
+.page-dashboard .task-dialog {
+  width: min(540px, calc(100% - 32px));
+  max-height: min(85vh, 720px);
+  margin: auto;
+  padding: 28px;
+  overflow: auto;
+  border: 1px solid #e8e5f1;
+  border-radius: 22px;
+  color: var(--indigo);
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(13, 0, 77, 0.25);
+}
+
+.page-dashboard .task-dialog::backdrop {
+  background: rgba(13, 0, 40, 0.62);
+  backdrop-filter: blur(3px);
+}
+
+.page-dashboard .dialog-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-dashboard .dialog-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--indigo);
+  background: #f4f3fb;
+  font-size: 1.7rem;
+  cursor: pointer;
+}
+
+.page-dashboard .task-dialog h2 {
+  margin-top: 18px;
+  font-size: 1.8rem;
+}
+
+.page-dashboard .dialog-status {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  color: #267d06;
+  background: #e8f7e0;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.page-dashboard .dialog-description {
+  margin-top: 18px;
+  color: var(--muted);
+}
+
+.page-dashboard .dialog-day {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.page-dashboard .dialog-action {
+  margin-top: 24px;
+}
+
+.page-dashboard .dialog-action:disabled {
+  cursor: default;
+}
+
+.page-dashboard [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .page-dashboard .dashboard-content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .page-dashboard .tasks-panel {
+    grid-column: 1 / -1;
+  }
+
+  .page-dashboard .challenge-panel, .page-dashboard .tech-panel {
+    min-height: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .page-dashboard .dashboard-welcome {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-block: 42px;
+  }
+
+  .page-dashboard .dashboard-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding-block: 24px 52px;
+  }
+
+  .page-dashboard .progress-panel, .page-dashboard .tasks-panel, .page-dashboard .tech-panel, .page-dashboard .challenge-panel {
+    grid-column: 1;
+    padding: 22px;
+  }
+
+  .page-dashboard .tasks-heading {
+    align-items: flex-start;
+  }
+
+  .page-dashboard .task-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .page-dashboard .task-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-dashboard .progress-stats {
+    gap: 8px;
+  }
+
+  .page-dashboard .progress-stats strong {
+    font-size: 1.4rem;
+  }
+
+  .page-dashboard .progress-stats span {
+    font-size: 0.78rem;
+  }
+
+  .page-dashboard .task-filters {
+    gap: 6px;
+  }
+
+  .page-dashboard .filter-button {
+    padding-inline: 9px;
+    font-size: 0.78rem;
+  }
+
+  .page-dashboard .task-card {
+    padding: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-dashboard .progress-fill, .page-dashboard .filter-button, .page-dashboard .tech-option, .page-dashboard .backend-option {
+    transition: none;
   }
 }
