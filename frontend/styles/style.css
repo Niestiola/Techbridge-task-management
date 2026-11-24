@@ -1,0 +1,3449 @@
+/* TechBridge styles
+   Colours come from the logo: indigo + green.
+   Layout: CSS Grid for every section.
+   Used by index.html and programs.html (programs.css adds the Programs page extras). */
+
+/* ---------- VARIABLES ----------
+   The colours, fonts and spacing used everywhere.
+   Change a value here and it changes across the whole site. */
+:root {
+  --indigo: #0d004d;
+  --green: #39b80a;
+  --green-text: #267d06; /* darker green: readable on light backgrounds */
+  --green-soft: #8fe06c;
+  --lavender: #f4f3fb;
+  --lilac: #e6e3f7;
+  --lilac-card: #ece9f9;
+  --green-card: #e8f7e0;
+  --muted: #4b4a63;
+  --line: #d9d6ec;
+  --white: #fff;
+  --display: "Red Hat Display", system-ui, "Segoe UI", Arial, sans-serif;
+  --text: "Hanken Grotesk", system-ui, "Segoe UI", Arial, sans-serif;
+  --pad: clamp(20px, 5.5vw, 80px); /* side spacing of the page */
+  --radius: 28px;
+  color-scheme: light;
+}
+
+/* ---------- RESET ----------
+   Removes the browser's default spacing so every element starts the same. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- BASE ----------
+   Page-wide settings: smooth scrolling, body text, images, links, keyboard focus. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px; /* keeps the sticky header from covering section titles */
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  font: 400 1.0625rem/1.55 var(--text);
+  color: var(--indigo);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+
+.backend-status {
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+.backend-status [data-state="online"] {
+  color: #1a8f4c;
+}
+.backend-status [data-state="offline"] {
+  color: #c0392b;
+}
+.task-message {
+  padding: 1rem 0;
+}
+.task-error {
+  border: 1px solid #c0392b;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* ---------- REUSABLE PATTERNS ----------
+   Small HTML/CSS helpers that reduce repeated layout code across pages. */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 48px;
+}
+.feature {
+  display: grid;
+  gap: 12px;
+}
+.feature h2 {
+  font-size: 1.625rem;
+  margin: 0;
+}
+.feature p {
+  color: var(--muted);
+}
+/* Skip link: hidden until you press Tab */
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+  background: var(--indigo);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  z-index: 20;
+}
+.skip:focus {
+  left: 8px;
+}
+
+/* ---------- TYPE ----------
+   Headings use the display font; the small green label above headings is the eyebrow. */
+h1,
+h2,
+h3,
+.big {
+  font-family: var(--display);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+}
+.eyebrow {
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--green-text);
+}
+.eyebrow.light {
+  color: var(--green-soft);
+}
+.section-title {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+}
+
+/* ---------- BUTTONS ----------
+   One .btn class makes every button. The other classes are small variations. */
+.btn {
+  display: inline-block;
+  background: var(--green);
+  color: var(--indigo);
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 17px 30px;
+  transition:
+    transform 0.2s ease,
+    background 0.2s;
+}
+.btn:hover {
+  background: #4ccb1b;
+  transform: translateY(-2px);
+}
+.btn-sm {
+  padding: 11px 22px;
+  font-size: 0.9375rem;
+}
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--indigo);
+  padding: 15px 28px;
+}
+.btn-outline:hover {
+  background: var(--indigo);
+  color: #fff;
+}
+.btn-navy {
+  background: var(--indigo);
+  color: #fff;
+}
+.btn-navy:hover {
+  background: #1c0a6b;
+}
+.link {
+  font-weight: 700;
+  color: var(--green-text);
+  text-underline-offset: 4px;
+}
+.link-navy {
+  color: var(--indigo);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* ---------- 1. HEADER ----------
+   The top bar, shared by every page. Three columns: left links, logo in the middle,
+   right links and the Apply now button. It stays at the top while you scroll. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--white);
+}
+.bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: clamp(16px, 2vw, 32px);
+  padding: 22px var(--pad) 26px;
+}
+/* The thin line under the header... */
+.bar::after {
+  content: "";
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+/* ...and the small green circle in its middle (it echoes the logo) */
+.bar::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  margin-left: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 3px solid var(--green);
+  z-index: 1;
+}
+.nav-left,
+.nav-right {
+  display: flex;
+  gap: clamp(18px, 2.3vw, 34px);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.nav-left a,
+.nav-right a {
+  text-decoration: none;
+}
+.nav-left a:hover,
+.nav-right a:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+/* The link for the page you are on (set with aria-current="page" in the HTML) */
+.nav-left a[aria-current="page"],
+.nav-right a[aria-current="page"] {
+  font-weight: 700;
+  padding-bottom: 4px;
+  border-bottom: 3px solid var(--green);
+  text-decoration: none;
+}
+.drawer a[aria-current="page"] {
+  color: var(--green-text);
+}
+.right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: clamp(18px, 2.3vw, 34px);
+}
+@media (min-width: 1181px) {
+  .nav-left,
+  .nav-right,
+  .bar .btn-sm {
+    font-size: calc(0.9375rem - 2px);
+  }
+
+  .nav-left,
+  .nav-right {
+    font-weight: 600;
+  }
+}
+/* The menu icon, menu list and checkbox only appear on smaller screens */
+.menu-btn,
+.drawer {
+  display: none;
+}
+.menu-toggle {
+  display: none;
+}
+
+/* ---------- 2. HERO ----------
+   The first section. Two columns: text on the left, tiles on the right.
+   The bridge (see section 2b) spans the full width underneath. */
+.hero {
+  background: var(--lavender);
+  padding: 80px var(--pad) 88px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  margin-top: 18px;
+}
+.hero h1 span {
+  color: var(--green-text);
+}
+.lede {
+  font-size: 1.25rem;
+  color: var(--muted);
+  max-width: 46ch;
+  margin-top: 24px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 32px;
+}
+.btn-row {
+  margin-top: 32px;
+}
+/* The three coloured tiles. The internship tile is as tall as the other two together. */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.tile {
+  border-radius: var(--radius);
+  padding: 26px;
+  min-height: 192px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.tile-main {
+  grid-row: span 2;
+  background: var(--indigo);
+  color: #fff;
+  padding: 32px;
+  min-height: 400px;
+}
+.tile-green {
+  background: var(--green);
+}
+.tile-lilac {
+  background: var(--lilac);
+}
+.tile .eyebrow {
+  color: var(--indigo);
+}
+.tile .eyebrow.light {
+  color: var(--green-soft);
+}
+.tile-title {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(1.4rem, 2.2vw, 1.875rem);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+.tile-main .tile-title {
+  font-size: 1.75rem;
+  margin-top: 6px;
+}
+.big {
+  font-size: 6rem;
+  color: var(--green);
+  line-height: 1;
+}
+
+/* ---------- 3. ABOUT ----------
+   Three short blocks side by side. auto-fit means: as many columns as fit,
+   so it becomes one column on a phone with no extra code. */
+.about {
+  padding: 96px var(--pad);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 48px;
+}
+.about h2 {
+  font-size: 1.625rem;
+  margin: 16px 0 8px;
+}
+.about p {
+  color: var(--muted);
+}
+.feature-grid {
+  gap: 48px;
+}
+
+/* ---------- 4. PROGRAMS ----------
+   The two program cards. They sit side by side and stack when there is no room. */
+.programs {
+  padding: 0 var(--pad) 112px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+.card {
+  border-radius: var(--radius);
+  padding: clamp(28px, 3.4vw, 44px);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+.card h3 {
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+}
+.card p {
+  font-size: 1.1875rem;
+  max-width: 34ch;
+}
+.card-green {
+  background: var(--green-card);
+}
+.card-lilac {
+  background: var(--lilac-card);
+}
+
+/* ---------- 5. INTERNSHIP ----------
+   The dark indigo band. Text and benefits on the left, a big "30 days" box on the right. */
+.internship {
+  background: var(--indigo);
+  color: #fff;
+  padding: 104px var(--pad);
+}
+.intern-in {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.internship h2 {
+  font-size: clamp(2.25rem, 4.4vw, 3.5rem);
+  margin-top: 14px;
+}
+.checks {
+  list-style: none;
+  display: grid;
+  gap: 18px;
+  margin: 32px 0 36px;
+  font-size: 1.25rem;
+  max-width: 46ch;
+}
+.checks li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.checks svg {
+  flex: none;
+}
+.days {
+  background: var(--green);
+  color: var(--indigo);
+  border-radius: 36px;
+  padding: 48px;
+  text-align: center;
+}
+.days .big {
+  color: var(--indigo);
+  font-size: clamp(7rem, 14vw, 12.5rem);
+  line-height: 0.9;
+}
+.days p:last-child {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 2.25rem;
+}
+
+/* ---------- 6. HOW TO APPLY ----------
+   Three numbered steps in a row. Each has a green number circle. */
+.apply {
+  padding: 112px var(--pad);
+}
+.steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 40px;
+  margin-top: 48px;
+}
+.steps li {
+  border-top: 3px solid var(--line);
+  padding-top: 24px;
+}
+.num {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--green);
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.375rem;
+}
+.steps h3 {
+  font-size: 1.5rem;
+  margin: 16px 0 8px;
+}
+.steps p {
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.steps .link {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- 7. COMMUNITY ----------
+   A green panel with the WhatsApp button. Flexbox: text and button in one row,
+   and the button drops below when there is no room. */
+.community {
+  padding: 0 var(--pad) 112px;
+}
+.comm-in {
+  background: var(--green-card);
+  border-radius: 36px;
+  padding: clamp(28px, 5vw, 64px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px 48px;
+}
+.comm-in h2 {
+  font-size: clamp(1.875rem, 3.4vw, 2.75rem);
+}
+.comm-in p {
+  margin-top: 14px;
+  font-size: 1.1875rem;
+  max-width: 46ch;
+  color: var(--muted);
+}
+
+/* ---------- 8. FOOTER ----------
+   Three columns: logo and tagline, contact details, quick links. */
+.site-footer {
+  background: var(--lavender);
+  padding: 56px var(--pad) 32px;
+}
+.foot {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 32px;
+}
+.foot > div {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.foot img {
+  height: 32px;
+  width: auto;
+}
+.foot p {
+  color: var(--muted);
+  margin-top: 6px;
+}
+.foot h2 {
+  font-family: var(--text);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  opacity: 0.7;
+}
+.foot a {
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+.legal {
+  margin-top: 40px;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* ---------- 2b. HERO BRIDGE ----------
+   The animated bridge under the hero. It draws itself from "Learning" to
+   "Real-World Experience". Visitors who prefer reduced motion see the finished bridge. */
+.bridge {
+  --h: 120px; /* height of the drawing; the deck sits at 100/120 of it */
+  --deck: calc(var(--h) * 0.8333);
+  --node: 30px;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: var(--node) 1fr var(--node);
+  padding-bottom: 40px;
+  margin-top: -12px;
+}
+.bridge-end {
+  position: relative;
+  padding-top: calc(var(--deck) - var(--node) / 2);
+}
+.b-node {
+  display: block;
+  width: var(--node);
+  height: var(--node);
+  border-radius: 50%;
+  border: 5px solid var(--green);
+  background: var(--lavender);
+  position: relative;
+  z-index: 1;
+}
+.bridge-finish .b-node {
+  background: var(--indigo);
+}
+.b-label {
+  position: absolute;
+  top: calc(var(--deck) + var(--node) / 2 + 10px);
+  white-space: nowrap;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(1.05rem, 2vw, 1.5rem);
+  letter-spacing: -0.02em;
+}
+.bridge-start .b-label {
+  left: 0;
+}
+.bridge-finish .b-label {
+  right: 0;
+  color: var(--green-text);
+}
+.bridge-span {
+  position: relative;
+  height: var(--h);
+  margin-inline: -2px;
+}
+.b-build {
+  position: absolute;
+  inset: 0;
+}
+.bridge-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.bridge-svg path,
+.bridge-svg line {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+}
+.b-deck {
+  stroke: var(--indigo);
+  stroke-width: 5;
+}
+.b-arch {
+  stroke: var(--green);
+  stroke-width: 4;
+}
+.b-cables line {
+  stroke: var(--indigo);
+  stroke-width: 1.5;
+  opacity: 0.35;
+}
+/* The three stops on the bridge: Projects, Mentorship, Internship */
+.b-stops {
+  list-style: none;
+}
+.b-stops li {
+  position: absolute;
+  left: var(--x);
+  bottom: calc(var(--h) - var(--deck) - 10px);
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--indigo);
+  white-space: nowrap;
+  line-height: 1;
+}
+.b-stops span {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+.b-stops li::before {
+  order: 2;
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 3px solid var(--lavender);
+  box-sizing: content-box;
+  margin-top: -3px;
+}
+
+/* The bridge animation (only for visitors who allow motion) */
+@media (prefers-reduced-motion: no-preference) {
+  .bridge-start .b-node {
+    animation: pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+  .b-build {
+    animation: build 1.8s 0.3s linear both;
+  }
+  .b-cables line {
+    animation: fade-in 0.4s calc(2.1s + var(--i) * 0.06s) both;
+  }
+  .b-stops li {
+    animation: rise 0.45s var(--d) cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  }
+  .bridge-finish .b-node {
+    animation:
+      pop 0.5s 2.05s cubic-bezier(0.3, 1.6, 0.5, 1) both,
+      arrive 1.2s 2.4s ease-out;
+  }
+  .b-label {
+    animation: fade-in 0.6s 0.2s both;
+  }
+  .bridge-finish .b-label {
+    animation-delay: 2.3s;
+  }
+}
+@keyframes build {
+  from {
+    clip-path: inset(-20px 100% -20px 0);
+  }
+  to {
+    clip-path: inset(-20px 0 -20px 0);
+  }
+}
+@keyframes pop {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes arrive {
+  from {
+    box-shadow: 0 0 0 0 rgb(57 184 10 / 0.55);
+  }
+  to {
+    box-shadow: 0 0 0 22px rgb(57 184 10 / 0);
+  }
+}
+
+/* ---------- 4b. PROGRAM DEMOS (pure CSS) ----------
+   The small demos inside the program cards build themselves as they scroll into view,
+   using CSS scroll-driven animations. Browsers without support, and visitors who
+   prefer reduced motion, see the finished demo. */
+.demo {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 14px 16px 16px;
+  box-shadow:
+    0 1px 0 var(--line),
+    0 12px 30px -18px rgb(13 0 77 / 0.35);
+}
+.demo-bar {
+  margin-bottom: 10px;
+}
+.demo-file {
+  font:
+    500 0.8125rem/1 ui-monospace,
+    "SFMono-Regular",
+    Menlo,
+    Consolas,
+    monospace;
+  color: var(--muted);
+}
+
+/* Data Analytics demo: a bar chart with a trend line */
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.chart .grid path {
+  stroke: var(--line);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.chart .bars rect {
+  fill: var(--indigo);
+  opacity: 0.85;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.chart .bars .bar-top {
+  fill: var(--green);
+  opacity: 1;
+}
+.chart .trend {
+  fill: none;
+  stroke: var(--green-text);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+}
+.chart .trend-dot {
+  fill: var(--white);
+  stroke: var(--green-text);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.chart .months text {
+  font: 500 11px var(--text);
+  fill: var(--muted);
+  text-anchor: middle;
+}
+.insight {
+  margin-top: 8px;
+  font-size: 0.9375rem !important;
+  color: var(--muted);
+}
+.insight strong {
+  color: var(--green-text);
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.125rem;
+}
+
+/* Web Development demo: code on one side, the live preview on the other */
+.demo-web {
+  container-type: inline-size;
+}
+.web-panes {
+  display: grid;
+  gap: 12px;
+}
+@container (min-width: 560px) {
+  .web-panes {
+    grid-template-columns: 1.15fr 1fr;
+  }
+}
+.code {
+  background: var(--indigo);
+  color: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font:
+    400 0.78rem/1.65 ui-monospace,
+    "SFMono-Regular",
+    Menlo,
+    Consolas,
+    monospace;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code .line {
+  display: inline-block;
+  vertical-align: top;
+  overflow: hidden;
+  width: calc(var(--n) * 1ch);
+}
+.code .t {
+  color: var(--green-soft);
+}
+.code .a {
+  color: #b9b0ff;
+}
+.code .v {
+  color: #ffd27a;
+}
+.preview {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--white);
+}
+.browser-dots {
+  display: flex;
+  gap: 5px;
+  padding: 8px 10px;
+  background: var(--lavender);
+  border-bottom: 1px solid var(--line);
+}
+.browser-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.page {
+  padding: 12px 14px 16px;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-height: 150px;
+}
+.pv-nav {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.pv-h1 {
+  font: 900 1.35rem/1.1 var(--display) !important;
+  letter-spacing: -0.02em;
+}
+.pv-p {
+  font-size: 0.875rem !important;
+  color: var(--muted);
+}
+.pv-btn {
+  justify-self: start;
+  margin-top: 6px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 7px 14px;
+  background: var(--green);
+  color: var(--indigo);
+  border-radius: 999px;
+}
+
+/* Scroll-driven animation: the demos build as you scroll past them */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .demo {
+      view-timeline: --demo block;
+    }
+    .demo * {
+      animation-timeline: --demo;
+      animation-fill-mode: both;
+      animation-duration: auto;
+    }
+    /* chart */
+    .chart .bars rect {
+      animation-name: grow;
+      animation-timing-function: cubic-bezier(0.3, 1.3, 0.5, 1);
+      animation-range: cover calc(8% + var(--i) * 3%) cover
+        calc(18% + var(--i) * 3%);
+    }
+    .chart .trend {
+      animation-name: draw;
+      animation-range: cover 22% cover 32%;
+    }
+    .chart .trend-dot {
+      animation-name: dot-pop;
+      animation-range: cover 32% cover 35%;
+    }
+    .insight {
+      animation-name: show-up;
+      animation-range: cover 33% cover 38%;
+    }
+    /* code typing: each line types out over its own slice of the scroll */
+    .code .line {
+      animation-name: type;
+      animation-timing-function: steps(var(--n), end);
+      animation-range: cover var(--s) cover var(--e);
+    }
+    /* the preview gains each element as its line finishes */
+    .page [data-show] {
+      animation-name: show-up;
+      animation-range: cover var(--at) cover calc(var(--at) + 3%);
+    }
+    .page .pv-btn {
+      animation-name: show-up, style-btn;
+      animation-range:
+        cover var(--at) cover calc(var(--at) + 3%),
+        cover var(--styled) cover calc(var(--styled) + 3%);
+    }
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dot-pop {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes show-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes type {
+  from {
+    width: 0;
+  }
+}
+@keyframes style-btn {
+  from {
+    background: #e4e4e9;
+    color: #333;
+    border-radius: 6px;
+  }
+}
+
+/* ---------- TABLET (980px and below) ----------
+   The hero and the internship band stack into one column. */
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: minmax(
+      0,
+      1fr
+    ); /* minmax(0, ...) lets the column shrink on very small screens */
+    gap: 48px;
+    padding-block: 64px;
+  }
+  .intern-in {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+  .tile-main {
+    min-height: 300px;
+  }
+}
+
+/* ---------- HEADER ON TABLETS AND PHONES (1180px and below) ----------
+   There are six links now, so on smaller screens they move into a menu.
+   The bar becomes: menu icon | logo | Apply now.
+   The menu works with a hidden checkbox, so it needs no JavaScript. */
+@media (max-width: 1180px) {
+  .bar {
+    gap: 8px;
+    padding: 10px calc(var(--pad) - 6px) 16px;
+  }
+  .nav-left,
+  .nav-right {
+    display: none;
+  }
+  /* The invisible checkbox sits exactly over the menu icon, so taps land on it */
+  .menu-toggle {
+    display: block;
+    position: fixed;
+    opacity: 0;
+    width: 44px;
+    height: 44px;
+    left: calc(var(--pad) - 6px);
+    top: 10px;
+    margin: 0;
+    z-index: 11;
+    cursor: pointer;
+  }
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    color: var(--indigo);
+  }
+  .logo img {
+    height: 24px;
+    width: auto;
+  }
+  .btn-sm {
+    padding: 10px 16px;
+    font-size: 0.875rem;
+  }
+  .right {
+    gap: 0;
+  }
+  /* The menu list: hidden until the checkbox is ticked */
+  .drawer {
+    display: none;
+    grid-template-columns: 1fr;
+    padding: 8px var(--pad) 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--white);
+  }
+  .menu-toggle:checked ~ .site-header .drawer {
+    display: grid;
+  }
+  .menu-toggle:focus-visible ~ .site-header .menu-btn {
+    outline: 3px solid var(--green);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  .drawer a {
+    padding: 12px 0;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* ---------- PHONE (760px and below) ----------
+   Tighter spacing, full-width buttons, and the tiles rearranged. */
+@media (max-width: 760px) {
+  .hero {
+    padding-block: 44px;
+  }
+  .actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+  .tiles {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .tile-main {
+    grid-column: 1/-1;
+    grid-row: auto;
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+    padding: 22px;
+  }
+  .tile-main .big {
+    font-size: 4.5rem;
+  }
+  .tile {
+    min-height: 110px;
+    padding: 18px;
+    justify-content: flex-end;
+  }
+  .tile .eyebrow:not(.light) {
+    display: none;
+  }
+  .about {
+    padding-block: 56px;
+    gap: 36px;
+  }
+  .programs,
+  .community {
+    padding-bottom: 56px;
+  }
+  .card {
+    min-height: 230px;
+  }
+  .bridge {
+    --h: 84px;
+    --node: 24px;
+    padding-bottom: 34px;
+  }
+  .b-node {
+    border-width: 4px;
+  }
+  .b-stops span {
+    display: none;
+  }
+  .internship {
+    padding-block: 56px;
+  }
+  .days {
+    padding: 32px;
+  }
+  .apply {
+    padding-block: 56px;
+  }
+  .steps {
+    gap: 28px;
+    margin-top: 28px;
+  }
+  .comm-in {
+    border-radius: 28px;
+  }
+  .comm-in .btn {
+    width: 100%;
+    text-align: center;
+  }
+  .foot {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- HIGH CONTRAST MODE ----------
+   Gives buttons and cards a visible edge for Windows High Contrast users. */
+@media (forced-colors: active) {
+  .btn,
+  .tile,
+  .card {
+    border: 2px solid CanvasText;
+  }
+}
+
+/* ---------- PROGRAM CARDS ----------
+   Keep the content at the top of each card and the link at the bottom. */
+.card {
+  justify-content: flex-start;
+}
+.card .link {
+  margin-top: auto;
+}
+
+/* ---------- TABLET AND PHONE: CENTRED CONTENT ----------
+   On smaller screens most text is centred. Desktop keeps its left-aligned layout. */
+@media (max-width: 980px) {
+  .hero-text,
+  .tile,
+  .about > div,
+  .section-title,
+  .card,
+  .internship,
+  .steps li,
+  .comm-in,
+  .site-footer,
+  .drawer a {
+    text-align: center;
+  }
+  .lede,
+  .card p,
+  .comm-in p {
+    margin-inline: auto;
+  }
+  .actions,
+  .comm-in {
+    justify-content: center;
+  }
+  .tile-main {
+    justify-content: center;
+  }
+  .card {
+    align-items: center;
+  }
+  .card > .demo {
+    align-self: stretch;
+    text-align: left;
+  }
+  .checks {
+    margin-inline: auto;
+    width: fit-content;
+    text-align: left;
+  }
+  .num {
+    margin-inline: auto;
+  }
+  .foot > div {
+    justify-items: center;
+  }
+}
+
+/* ---------- PHONE FOOTER ----------
+   Logo on top, then Contact and Explore side by side. */
+@media (max-width: 760px) {
+  .foot {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 16px;
+  }
+  .foot > div:first-child {
+    grid-column: 1 / -1;
+  }
+  .foot a[href^="mailto:"] {
+    font-size: 0.9375rem;
+  }
+}
+
+.page-programs .foot {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+}
+.page-programs .foot > div:nth-child(2) {
+  justify-items: start;
+  text-align: left;
+}
+.page-programs .foot > div:nth-child(3) {
+  justify-items: start;
+  text-align: left;
+}
+.page-programs .legal {
+  text-align: left;
+}
+
+/* ---------- HOW TO APPLY ON SMALLER SCREENS ----------
+   The three steps become one centred column. */
+@media (max-width: 980px) {
+  .steps {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+}
+
+/* ---------- ABOUT AND FOOTER LOGO ON SMALLER SCREENS ----------
+   The About blocks become one centred column; the footer logo stays on the left. */
+@media (max-width: 980px) {
+  .about {
+    grid-template-columns: 1fr;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+  .foot > div:first-child {
+    justify-items: start;
+    text-align: left;
+  }
+}
+
+/* ---------- VERY SMALL PHONES (380px and below) ----------
+   Makes the header smaller so the menu icon, logo and Apply now button stay on one line,
+   and stacks the three hero tiles. This block is last so it overrides the phone rules above. */
+@media (max-width: 380px) {
+  .tiles {
+    grid-template-columns: minmax(
+      0,
+      1fr
+    ); /* the three tiles stack, so long words like "Development" fit */
+  }
+  .tile-main {
+    grid-column: auto;
+  }
+  .logo img {
+    height: 20px;
+  }
+  .btn-sm {
+    padding: 9px 12px;
+    font-size: 0.8125rem;
+  }
+}
+
+/* ==========================================================================
+   CHALLENGE HUB PAGE
+   ========================================================================== */
+
+/* ---------- CHALLENGE HUB SHARED PAGE WIDTH ----------
+   Each main section uses the same maximum width and side spacing as the rest
+   of TechBridge. This keeps the hero, filters, cards and footer aligned.
+*/
+.challenge-hero,
+.challenge-tools,
+.challenge-results {
+  width: min(1180px, calc(100% - 2 * var(--pad)));
+  margin-inline: auto;
+}
+
+/* ---------- CHALLENGE HUB HERO ----------
+   The hero uses two columns: an introductory message and a visual challenge
+   counter. The text explains the purpose of the hub, while the counter gives
+   visitors an immediate idea of how many challenges are available.
+*/
+.challenge-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: clamp(24px, 5vw, 64px);
+  align-items: center;
+  padding: clamp(48px, 8vw, 96px) 0 40px;
+}
+
+.challenge-hero h1 {
+  margin: 8px 0 18px;
+  max-width: 760px;
+  font-size: clamp(2.6rem, 6vw, 5rem);
+}
+
+.challenge-summary {
+  min-height: 220px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--green-card);
+  text-align: center;
+}
+
+.summary-number {
+  font: 900 clamp(4rem, 8vw, 6rem)/0.9 var(--display);
+}
+
+.summary-label {
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+/* ---------- CHALLENGE FILTER TOOLBAR ----------
+   This section contains the track and difficulty dropdowns plus the reset
+   button. CSS Grid keeps labels, controls and the action aligned in a row.
+*/
+.challenge-tools {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--lavender);
+}
+
+.filter-title {
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.filter-group {
+  display: grid;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.filter-group select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--indigo);
+  font: 500 1rem var(--text);
+  padding: 10px 42px 10px 12px;
+}
+
+.reset-button {
+  min-height: 48px;
+  border: 2px solid var(--indigo);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--indigo);
+  font: 700 1rem var(--text);
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.reset-button:hover {
+  background: var(--indigo);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+/* ---------- CHALLENGE RESULTS AND STATUS ----------
+   The results heading identifies the card area, while the live status text
+   tells users how many challenges match their selected filters.
+*/
+.challenge-results {
+  padding: 48px 0 84px;
+}
+
+.results-heading {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.results-heading h2 {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+}
+
+.results-status {
+  margin-bottom: 22px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* ---------- CHALLENGE CARD GRID ----------
+   Desktop uses three columns, tablet uses two, and mobile uses one.
+   JavaScript fills this grid with article elements created from challenge data.
+*/
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+/* Modal */
+
+.challenge-dialog {
+  width: min(760px, 90vw);
+  max-height: 90vh;
+  border: none;
+  border-radius: 32px;
+  padding: 0;
+  margin: auto;
+}
+
+.challenge-dialog[open] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.challenge-dialog::backdrop {
+  background: rgba(45, 34, 103, 0.7);
+  backdrop-filter: blur(4px);
+}
+/* <!-- Modal --> */
+.challenge-card {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 14px;
+  min-height: 310px;
+  cursor: pointer;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: 0 18px 40px rgba(13, 0, 77, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.challenge-card:hover {
+  transform: translateY(-4px);
+  border-color: #bcb7db;
+  box-shadow: 0 22px 44px rgba(13, 0, 77, 0.1);
+}
+
+.challenge-card.track-data {
+  border-top: 5px solid var(--green);
+}
+
+.challenge-card.track-web {
+  border-top: 5px solid var(--indigo);
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.track-label,
+.difficulty-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.track-label {
+  background: var(--lavender);
+  color: var(--indigo);
+}
+
+.difficulty-label {
+  background: var(--green-card);
+  color: var(--green-text);
+}
+
+.challenge-card h3 {
+  font-size: 1.55rem;
+}
+
+.challenge-card p {
+  color: var(--muted);
+}
+
+/* ---------- VIEW CHALLENGE ACTION ----------
+   This action opens the details dialog. It uses the brand green and indigo
+   while retaining a clear hover and keyboard focus treatment.
+*/
+.view-challenge {
+  justify-self: start;
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--indigo);
+  font: 800 0.95rem var(--text);
+  padding: 10px 18px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.view-challenge:hover {
+  background: #4ccb1b;
+  transform: translateY(-2px);
+}
+
+/* ---------- EMPTY RESULTS ----------
+   This panel is hidden by default and shown only when both filters produce
+   no matching challenge.
+*/
+.no-results {
+  padding: 36px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--lavender);
+  text-align: center;
+}
+
+.no-results h3 {
+  margin-bottom: 8px;
+  font-size: 1.5rem;
+}
+
+/* ---------- CHALLENGE DETAILS DIALOG ----------
+   The native dialog is populated by challenges.js. The backdrop darkens the
+   page, and the body separates each required detail into readable sections.
+*/
+.challenge-dialog {
+  width: min(680px, calc(100% - 32px));
+  max-height: calc(100vh - 48px);
+  border: 0;
+  border-radius: var(--radius);
+  padding: 0;
+  color: var(--indigo);
+  box-shadow: 0 28px 80px rgba(13, 0, 77, 0.28);
+}
+
+.challenge-dialog::backdrop {
+  background: rgba(13, 0, 77, 0.62);
+  backdrop-filter: blur(3px);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dialog-header h2 {
+  margin-top: 5px;
+  font-size: clamp(1.6rem, 4vw, 2.35rem);
+}
+
+.dialog-close {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--indigo);
+  font: 400 2rem/1 var(--text);
+  cursor: pointer;
+}
+
+.dialog-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 24px;
+  padding: 24px;
+}
+
+.dialog-detail {
+  display: grid;
+  gap: 6px;
+}
+
+.dialog-detail.full-width {
+  grid-column: 1 / -1;
+}
+
+.dialog-detail h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dialog-detail p,
+.dialog-detail ul {
+  color: var(--muted);
+}
+
+.dialog-detail ul {
+  padding-left: 18px;
+}
+
+/* ---------- TABLET CHALLENGE HUB ----------
+   Tablet layouts reduce the challenge grid to two cards per row.
+*/
+@media (max-width: 980px) {
+  .challenge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- MOBILE CHALLENGE HUB ----------
+   Phone layouts stack the hero summary, filter controls, challenge cards,
+   and dialog details. This preserves readable text and full-width actions.
+*/
+@media (max-width: 760px) {
+  /* Challenge Hub mobile page gutters:
+     Keep the hero, filters and card grid inset from the screen edge,
+     matching the spacing used throughout the rest of the TechBridge site.
+  */
+  .challenge-hero,
+  .challenge-tools,
+  .challenge-results {
+    width: calc(100% - 40px);
+  }
+
+  .challenge-hero {
+    grid-template-columns: 1fr;
+    padding-top: 44px;
+  }
+
+  .challenge-summary {
+    min-height: 160px;
+  }
+
+  .filter-grid,
+  .challenge-grid,
+  .dialog-body {
+    grid-template-columns: 1fr;
+  }
+
+  .reset-button {
+    width: 100%;
+  }
+
+  .dialog-detail.full-width {
+    grid-column: auto;
+  }
+}
+
+/* ---------- REDUCE MOTION ----------
+   Users who request reduced motion receive no decorative card or button
+   movement. Essential layout and modal behavior remain unchanged.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .challenge-card,
+  .view-challenge,
+  .reset-button {
+    transition: none;
+  }
+
+  .challenge-card:hover,
+  .view-challenge:hover,
+  .reset-button:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   PROGRAMS PAGE STYLES
+   Consolidated from the former page-specific stylesheet.
+   ========================================================================== */
+
+/* TechBridge: Programs page
+   Loads AFTER style.css and reuses its colours, fonts, header, buttons and footer.
+   This file only holds what is specific to the Programs page.
+   Written mobile-first: the base rules are for phones, and min-width queries add the rest. */
+
+/* ---------- HELPERS ----------
+   Small tools used by the sections below. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* A white outlined button for use on the dark indigo section */
+.btn-ghost {
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 15px 28px;
+}
+.btn-ghost:hover {
+  background: #fff;
+  color: var(--indigo);
+}
+
+/* ---------- SECTION SPACING ----------
+   Shared padding for the white and lavender sections. */
+.p-section {
+  padding: 56px var(--pad);
+}
+.p-section--tight {
+  padding-top: 8px;
+}
+.page-programs .section-title {
+  margin-top: 10px;
+  text-align: left; /* style.css centres section titles on small screens */
+}
+.p-intro {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+/* ---------- 2. HERO ----------
+   The first section: text on one side, a chart-and-code illustration on the other. */
+.p-hero {
+  background: var(--lavender);
+  padding: 44px var(--pad) 56px;
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+.p-hero h1 {
+  font-size: clamp(calc(2.5rem - 3px), calc(7vw - 3px), calc(4.5rem - 3px));
+  margin-top: 16px;
+}
+.p-hero h1 span {
+  color: var(--green-text);
+}
+/* style.css centres .lede and .actions on small screens; keep this page left-aligned */
+.page-programs .lede {
+  margin-inline: 0;
+}
+.page-programs .actions {
+  justify-content: flex-start;
+}
+
+/* The illustration: a chart card and a code window that overlap. No image files needed. */
+.hero-visual {
+  position: relative;
+  height: 290px;
+}
+.vis-chart,
+.vis-code {
+  position: absolute;
+  border-radius: 22px;
+  padding: 18px;
+}
+.vis-tag {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.vis-chart {
+  left: 0;
+  top: 0;
+  width: 64%;
+  height: 64%;
+  background: var(--green-card);
+  display: flex;
+  flex-direction: column;
+}
+.vis-chart .vis-tag {
+  color: var(--green-text);
+}
+.bars {
+  flex: 1;
+  margin-top: 14px;
+  display: flex;
+  align-items: flex-end;
+  gap: 7%;
+  border-bottom: 3px solid var(--indigo);
+}
+.bars span {
+  flex: 1;
+  background: var(--green);
+  border-radius: 6px 6px 0 0;
+}
+.bars span:nth-child(even) {
+  background: var(--indigo);
+}
+.bars span:nth-child(1) {
+  height: 40%;
+}
+.bars span:nth-child(2) {
+  height: 70%;
+}
+.bars span:nth-child(3) {
+  height: 55%;
+}
+.bars span:nth-child(4) {
+  height: 95%;
+}
+.bars span:nth-child(5) {
+  height: 75%;
+}
+
+.vis-code {
+  right: 0;
+  top: 26%;
+  width: 68%;
+  height: 70%;
+  background: var(--indigo);
+  overflow: hidden;
+  padding: 0;
+  box-shadow: 0 28px 44px -28px rgb(13 0 77 / 0.7);
+}
+.dots {
+  display: flex;
+  gap: 6px;
+  padding: 11px 14px;
+  background: #1c0a6b;
+}
+.dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.dots i:nth-child(2) {
+  background: var(--green-soft);
+}
+.dots i:nth-child(3) {
+  background: var(--lilac);
+}
+.lines {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+.lines span {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  width: var(--w);
+  margin-left: var(--m, 0);
+  background: var(--lilac);
+}
+.lines span:nth-child(1) {
+  --w: 55%;
+  background: var(--green);
+}
+.lines span:nth-child(2) {
+  --w: 80%;
+  --m: 8%;
+}
+.lines span:nth-child(3) {
+  --w: 60%;
+  --m: 8%;
+  background: var(--green-soft);
+}
+.lines span:nth-child(4) {
+  --w: 70%;
+  --m: 16%;
+}
+.lines span:nth-child(5) {
+  --w: 40%;
+  background: var(--green);
+}
+.lines span:nth-child(6) {
+  --w: 65%;
+  --m: 8%;
+}
+.lines span:nth-child(7) {
+  --w: 35%;
+  background: var(--green-soft);
+}
+.vis-code .vis-tag {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  color: var(--green-soft);
+}
+
+/* ---------- 3. PROGRAM OVERVIEW ----------
+   Two equal cards, one per program. Green for Data Analytics, purple for Web Development. */
+.paths {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+.path {
+  border-radius: var(--radius);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.path--data {
+  background: var(--green-card);
+}
+.path--web {
+  background: var(--lilac-card);
+}
+.path-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.path-label .eyebrow {
+  font-size: 0.75rem;
+}
+.path--web .eyebrow {
+  color: var(--indigo);
+}
+.path h3 {
+  font-size: clamp(2rem, 6vw, 2.75rem);
+}
+.path-desc {
+  color: var(--muted);
+  font-size: 1.0625rem;
+}
+.mini {
+  font-family: var(--text);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chips li {
+  background: var(--white);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.path-outcome {
+  font-weight: 500;
+}
+.path .link {
+  margin-top: auto;
+}
+
+/* Hover and focus: the card gets a shadow and lifts a little (lifting only if motion is allowed) */
+.path,
+.choice {
+  transition:
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+.path:hover,
+.path:focus-within {
+  box-shadow: 0 22px 40px -26px rgb(13 0 77 / 0.5);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .path {
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .path:hover,
+  .path:focus-within {
+    transform: translateY(-4px);
+  }
+}
+
+/* ---------- 4. DETAILS ----------
+   The boxes of expandable skills. Each skill is a details tag with a plus or minus button. */
+.skills {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+.skill-group {
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.skill-group--data {
+  background: var(--green-card);
+}
+.skill-group--web {
+  background: var(--lilac-card);
+}
+/* Reached from a Learn more link: show which one it is */
+.skill-group:target {
+  outline: 3px solid var(--green);
+  outline-offset: 4px;
+}
+.skill-group h3 {
+  font-size: 1.625rem;
+  margin-bottom: 8px;
+}
+.skill {
+  border-top: 1px solid rgb(13 0 77 / 0.16);
+}
+.skill summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 14px 0;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+}
+.skill summary::-webkit-details-marker {
+  display: none;
+}
+.skill summary::after {
+  content: "+";
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--white);
+  display: grid;
+  place-items: center;
+  font: 700 1.25rem/1 var(--text);
+}
+.skill[open] summary::after {
+  content: "\2212";
+}
+.skill summary:hover::after {
+  background: var(--green);
+}
+.skill p {
+  color: var(--muted);
+  max-width: 48ch;
+  padding-bottom: 16px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .skill[open] p {
+    animation: reveal 0.25s ease-out;
+  }
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* ---------- 5. COMPARISON ----------
+   Phones: two stacked cards. Desktop: a table-like grid with the rows lined up. */
+.p-compare {
+  background: var(--lavender);
+}
+.compare {
+  display: grid;
+  gap: 14px;
+  margin-top: 28px;
+}
+.compare-labels {
+  display: none;
+}
+.compare-col {
+  border-radius: 24px;
+  padding: 24px;
+}
+.compare-col--data {
+  background: var(--green-card);
+}
+.compare-col--web {
+  background: var(--lilac-card);
+}
+.compare-col h3 {
+  font-size: 1.625rem;
+  margin-bottom: 8px;
+}
+.compare-col .row {
+  padding: 12px 0;
+  border-top: 1px solid rgb(13 0 77 / 0.16);
+}
+.compare-col dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+/* ---------- 6. HELP VISITORS CHOOSE ----------
+   Two outlined boxes, each with a question and a button. */
+.choices {
+  display: grid;
+  gap: 14px;
+  margin-top: 28px;
+}
+.choice {
+  border: 2px solid var(--indigo);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+}
+.choice:hover {
+  background: var(--lavender);
+}
+.choice p {
+  font: 900 1.375rem/1.2 var(--display);
+  letter-spacing: -0.02em;
+}
+.choice .btn {
+  text-align: center;
+}
+
+/* ---------- 7. FINAL CALL TO ACTION ----------
+   The dark closing section with the apply button. */
+.p-cta {
+  background: var(--indigo);
+  color: #fff;
+  padding: 64px var(--pad);
+  text-align: center;
+}
+.p-cta h2 {
+  font-size: clamp(2.25rem, 7vw, 4.5rem);
+}
+.p-cta p {
+  color: var(--line);
+  font-size: 1.125rem;
+  max-width: 46ch;
+  margin: 18px auto 0;
+}
+.cta-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* ---------- 8. FOOTER ON PHONES ----------
+   Logo on top, then Contact (left) and Explore (right column), both left-aligned. */
+.page-programs .foot {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+}
+.page-programs .foot > div:nth-child(2) {
+  justify-items: start;
+  text-align: left;
+}
+.page-programs .foot > div:nth-child(3) {
+  justify-items: start;
+  text-align: left;
+}
+.page-programs .legal {
+  text-align: left;
+}
+
+/* ================= TABLET AND UP =================
+   More room: bigger illustration, two-column cards, buttons side by side. */
+@media (min-width: 640px) {
+  .hero-visual {
+    height: 400px;
+  }
+  .vis-chart,
+  .vis-code {
+    padding: 24px;
+  }
+  .vis-code {
+    padding: 0;
+  }
+  .lines {
+    gap: 14px;
+    padding: 22px;
+  }
+  .cta-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 761px) {
+  .p-section {
+    padding: 88px var(--pad);
+  }
+  .p-section--tight {
+    padding-top: 8px;
+  }
+  .paths,
+  .skills,
+  .choices {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 44px;
+  }
+  .path {
+    padding: clamp(28px, 3.4vw, 40px);
+  }
+  .skill-group {
+    padding: 32px;
+  }
+  .choice {
+    padding: 40px;
+    align-items: flex-start;
+  }
+  .choice .btn {
+    text-align: left;
+  }
+  .p-cta {
+    padding: 96px var(--pad);
+  }
+  /* Footer: back to three equal-ish columns, left aligned like the homepage */
+  .page-programs .foot {
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+}
+
+/* ================= DESKTOP =================
+   Two-column hero and the comparison becomes a table-like grid. */
+@media (min-width: 980px) {
+  .p-hero {
+    grid-template-columns: 1.05fr 1fr;
+    gap: 64px;
+    padding-block: 80px 96px;
+  }
+  .hero-visual {
+    height: 440px;
+  }
+  .p-section {
+    padding-block: 112px;
+  }
+  .p-section--tight {
+    padding-top: 8px;
+  }
+
+  /* Comparison becomes a table-like grid. Subgrid keeps rows aligned across columns. */
+  .compare {
+    grid-template-columns: 150px 1fr 1fr;
+    grid-template-rows: auto repeat(4, auto);
+    gap: 0;
+    margin-top: 48px;
+  }
+  .compare-labels {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1 / span 5;
+    grid-template-rows: subgrid;
+  }
+  .compare-labels span {
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .compare-labels span:first-child {
+    border-top: 0;
+  }
+  .compare-col {
+    grid-row: 1 / span 5;
+    display: grid;
+    grid-template-rows: subgrid;
+    background: none;
+    border-radius: 0;
+    padding: 0 24px;
+  }
+  .compare-col--data {
+    grid-column: 2;
+  }
+  .compare-col--web {
+    grid-column: 3;
+  }
+  .compare-col h3 {
+    font-size: 1.75rem;
+    margin: 0;
+    padding-bottom: 20px;
+    align-self: end;
+  }
+  .compare-col--data h3 {
+    color: var(--green-text);
+  }
+  .compare-col dl {
+    grid-row: 2 / span 4;
+    display: grid;
+    grid-template-rows: subgrid;
+  }
+  .compare-col .row {
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+  }
+  /* the left column shows the labels; keep each dt for screen readers only */
+  .compare-col dt {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+/* High contrast mode: give the cards a visible edge */
+@media (forced-colors: active) {
+  .path,
+  .skill-group,
+  .compare-col,
+  .vis-chart,
+  .vis-code {
+    border: 2px solid CanvasText;
+  }
+}
+
+/* ==========================================================================
+   INTERNSHIP ROADMAP PAGE STYLES
+   Consolidated from the former page-specific stylesheet.
+   ========================================================================== */
+
+/* Internship roadmap page styles
+   This file defines the layout for the TechBridge Interactive Internship Roadmap.
+   The structure is intentionally simple so it stays easy to debug and maintain.
+*/
+
+.page-internship main {
+  display: block;
+}
+
+/* Hero section: large intro area with summary stats and clear call-to-action buttons. */
+.internship-hero,
+.internship-overview,
+.tasks-section,
+.next-steps {
+  width: min(1180px, calc(100% - 2 * var(--pad)));
+  margin: 0 auto;
+}
+
+.internship-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: clamp(32px, 4vw, 56px);
+  padding: clamp(48px, 8vw, 96px) 0 32px;
+  align-items: center;
+}
+
+.journey-copy {
+  display: grid;
+  gap: 18px;
+}
+
+.internship-hero h1 {
+  font-size: clamp(2.6rem, 5vw, 4.5rem);
+}
+
+.internship-hero h1 span {
+  color: var(--green-text);
+}
+
+.journey-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  display: grid;
+  gap: 8px;
+  padding: 28px 20px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  box-shadow: 0 16px 36px rgba(13, 0, 77, 0.06);
+}
+
+.accent-green {
+  background: linear-gradient(180deg, #f0ffe7 0%, #e8f7e0 100%);
+}
+
+.accent-lilac {
+  background: linear-gradient(180deg, #f5f3ff 0%, #ece9f9 100%);
+}
+
+.accent-indigo {
+  background: linear-gradient(180deg, #f3f4ff 0%, #eeefff 100%);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stat-number {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  color: var(--indigo);
+  line-height: 1;
+}
+
+.stat-note {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.internship-overview {
+  padding: 28px 0 32px;
+}
+
+/* Overview cards explain the internship structure in a scan-friendly way. */
+.internship-overview h2,
+.tasks-section h2,
+.next-steps h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-top: 6px;
+  margin-bottom: 26px;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.overview-card {
+  background: linear-gradient(180deg, var(--white) 0%, #f8f7ff 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.overview-card h3 {
+  font-size: 1.5rem;
+}
+
+.overview-card p {
+  color: var(--muted);
+}
+
+.overview-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--green-card);
+  color: var(--green-text);
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.tasks-section {
+  padding: 32px 0 28px;
+}
+
+/* Timeline layout: the left vertical line visually shows the progression from day 1 to day 26. */
+.section-heading {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+/* Track selector: active state uses the existing TechBridge green and indigo palette. */
+.track-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.track-button {
+  appearance: none;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 12px 22px;
+  background: var(--white);
+  color: var(--indigo);
+  font: 700 1rem/1.2 var(--text);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.track-button:hover {
+  border-color: var(--green);
+  transform: translateY(-2px);
+}
+
+.track-button[aria-pressed="true"] {
+  border-color: var(--indigo);
+  background: var(--indigo);
+  color: var(--white);
+}
+
+.track-button:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+
+.current-track {
+  margin-bottom: 6px;
+  font-family: var(--display);
+  font-size: 1.125rem;
+  font-weight: 900;
+  color: var(--indigo);
+}
+
+.track-hint {
+  margin-bottom: 24px;
+  color: var(--muted);
+}
+
+/* The live region updates when JavaScript renders the selected track's tasks. */
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  padding-left: 20px;
+  transition: opacity 0.2s ease;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(57, 184, 10, 0.8),
+    rgba(13, 0, 77, 0.2)
+  );
+}
+
+.task-card {
+  position: relative;
+  margin-left: 36px;
+  background: var(--white);
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  padding: 22px 24px 20px;
+  box-shadow: 0 18px 40px rgba(13, 0, 77, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  border-color: #bcb7db;
+  box-shadow: 0 22px 44px rgba(13, 0, 77, 0.1);
+}
+
+.task-card::before {
+  content: "";
+  position: absolute;
+  left: -28px;
+  top: 26px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 5px solid var(--white);
+  box-shadow: 0 0 0 2px rgba(57, 184, 10, 0.2);
+}
+
+.task-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.task-id {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green-text);
+}
+
+.day-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--lavender);
+  color: var(--indigo);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.task-card h3 {
+  margin-bottom: 10px;
+  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+}
+
+.task-card p {
+  color: var(--muted);
+}
+
+.task-difficulty {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #edf8ed;
+  color: var(--green-text);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.no-script-note {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--lavender);
+  color: var(--muted);
+}
+
+.next-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 42px 0 84px;
+}
+
+/* CTA section: reinforces progression and gives users a clear next step. */
+.next-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.next-copy p:last-child {
+  color: var(--muted);
+  max-width: 52rem;
+}
+
+/* Responsive behavior: stacks content for tablet-sized screens without losing readability. */
+@media (max-width: 840px) {
+  .internship-hero,
+  .overview-grid,
+  .next-steps {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .journey-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .next-steps {
+    padding-top: 18px;
+  }
+}
+
+/* Mobile layout: maintain spacing and card readability on small screens. */
+@media (max-width: 620px) {
+  .track-picker {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .track-button {
+    width: 100%;
+  }
+
+  .journey-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .task-card {
+    margin-left: 22px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .timeline {
+    padding-left: 0;
+  }
+
+  .timeline::before {
+    left: 8px;
+  }
+}
+
+/* Respect system motion preferences by disabling decorative transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .track-button,
+  .timeline,
+  .task-card {
+    transition: none;
+  }
+
+  .track-button:hover,
+  .task-card:hover {
+    transform: none;
+  }
+}
+
+/* Dashboard page styles */
+.page-dashboard {
+  background: #faf9fd;
+}
+
+.page-dashboard .dashboard-welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  padding: 58px var(--pad) 62px;
+  color: #fff;
+  background:
+    radial-gradient(
+      ellipse at 87% 14%,
+      rgba(143, 224, 108, 0.21),
+      transparent 30%
+    ),
+    linear-gradient(120deg, #0d004d, #21136b);
+}
+
+.page-dashboard .welcome-copy h1 {
+  margin-top: 12px;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+}
+
+.page-dashboard .welcome-copy h1 span {
+  color: #a4e888;
+}
+
+.page-dashboard .welcome-track {
+  margin-top: 16px;
+  color: #e6e3f7;
+}
+
+.page-dashboard .welcome-track strong {
+  color: #fff;
+}
+
+.page-dashboard .welcome-message {
+  margin-top: 10px;
+  color: #d7d2ef;
+}
+
+.page-dashboard .intern-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 0 0 auto;
+  padding: 18px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.page-dashboard .status-pulse {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: #8fe06c;
+  box-shadow: 0 0 0 5px rgba(143, 224, 108, 0.15);
+}
+
+.page-dashboard .status-label,
+.page-dashboard .preview-label {
+  color: #c8c2e6;
+  font-size: 0.82rem;
+}
+
+.page-dashboard .status-value {
+  margin-top: 2px;
+  font-weight: 700;
+}
+
+.page-dashboard .status-days {
+  margin-top: 3px;
+  color: #d7d2ef;
+  font-size: 0.85rem;
+}
+
+.page-dashboard .dashboard-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+  align-items: start;
+  gap: 24px;
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: 42px var(--pad) 76px;
+}
+
+.page-dashboard .progress-panel,
+.page-dashboard .tasks-panel,
+.page-dashboard .tech-panel,
+.page-dashboard .challenge-panel {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid #e8e5f1;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(13, 0, 77, 0.045);
+}
+
+.page-dashboard .progress-panel {
+  grid-column: 1 / -1;
+}
+
+.page-dashboard .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-dashboard .section-heading h2 {
+  margin-top: 5px;
+  font-size: clamp(1.45rem, 3vw, 1.9rem);
+}
+
+.page-dashboard .progress-percent {
+  color: var(--green-text);
+  font: 900 1.9rem/1 var(--display);
+}
+
+.page-dashboard .progress-track {
+  height: 12px;
+  margin-top: 24px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #eeedf4;
+}
+
+.page-dashboard .progress-fill {
+  display: block;
+  width: 25%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #39b80a, #8fe06c);
+  transition: width 240ms ease;
+}
+
+.page-dashboard .progress-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.page-dashboard .progress-stats div {
+  display: grid;
+  gap: 3px;
+}
+
+.page-dashboard .progress-stats strong {
+  font: 900 1.65rem/1 var(--display);
+}
+
+.page-dashboard .progress-stats span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.page-dashboard .text-link {
+  flex: 0 0 auto;
+  color: var(--green-text);
+  font-weight: 700;
+  text-underline-offset: 4px;
+}
+
+.page-dashboard .task-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.page-dashboard .filter-button,
+.page-dashboard .tech-option,
+.page-dashboard .backend-option {
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid #e4e1ee;
+  border-radius: 999px;
+  color: var(--indigo);
+  background: #fff;
+  font: 700 0.86rem/1.2 var(--text);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.page-dashboard .filter-button span {
+  margin-left: 4px;
+  color: #77748d;
+  font-size: 0.77rem;
+}
+
+.page-dashboard .filter-button[aria-pressed="true"],
+.page-dashboard .tech-option[aria-pressed="true"],
+.page-dashboard .backend-option[aria-pressed="true"] {
+  border-color: var(--indigo);
+  color: #fff;
+  background: var(--indigo);
+}
+
+.page-dashboard .filter-button[aria-pressed="true"] span {
+  color: #d7d2ef;
+}
+
+.page-dashboard .filter-button:hover,
+.page-dashboard .tech-option:hover,
+.page-dashboard .backend-option:hover {
+  border-color: var(--green-text);
+}
+
+.page-dashboard .task-results {
+  margin: 17px 0 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.page-dashboard .task-list {
+  display: grid;
+  gap: 10px;
+}
+
+.page-dashboard .task-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 17px;
+  border: 1px solid #eceaf2;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.page-dashboard .task-number {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  color: #267d06;
+  background: #e8f7e0;
+  font: 900 0.92rem var(--display);
+}
+
+.page-dashboard .task-card[data-status="Completed"] .task-number {
+  color: #fff;
+  background: var(--green-text);
+}
+
+.page-dashboard .task-card[data-status="In Progress"] .task-number {
+  color: var(--indigo);
+  background: #e6e3f7;
+}
+
+.page-dashboard .task-copy {
+  min-width: 0;
+}
+
+.page-dashboard .task-copy h3 {
+  font-size: 1.05rem;
+}
+
+.page-dashboard .task-copy p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.page-dashboard .task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+}
+
+.page-dashboard .task-meta span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.page-dashboard .task-status {
+  padding: 3px 8px;
+  border-radius: 99px;
+  color: var(--indigo) !important;
+  background: #f0eff5;
+  font-weight: 700;
+}
+
+.page-dashboard .task-card[data-status="Completed"] .task-status {
+  color: #267d06 !important;
+  background: #e8f7e0;
+}
+
+.page-dashboard .task-card[data-status="In Progress"] .task-status {
+  color: #433487 !important;
+  background: #eae7f8;
+}
+
+.page-dashboard .task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.page-dashboard .task-actions button,
+.page-dashboard .dialog-action {
+  border: 0;
+  cursor: pointer;
+  font: 700 0.82rem/1.2 var(--text);
+}
+
+.page-dashboard .view-task {
+  padding: 9px 11px;
+  border-radius: 9px;
+  color: var(--indigo);
+  background: #f4f3fb;
+}
+
+.page-dashboard .complete-task {
+  padding: 9px 12px;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--green-text);
+}
+
+.page-dashboard .complete-task:disabled {
+  color: #267d06;
+  background: #e8f7e0;
+  cursor: default;
+}
+
+.page-dashboard .empty-tasks {
+  padding: 24px 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.page-dashboard .panel-intro {
+  margin-top: 13px;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+
+.page-dashboard .tech-options,
+.page-dashboard .backend-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.page-dashboard .backend-options {
+  padding-top: 14px;
+  border-top: 1px solid #eeedf4;
+}
+
+.page-dashboard .tech-option {
+  min-height: 38px;
+  padding-inline: 12px;
+  font-size: 0.82rem;
+}
+
+.page-dashboard .backend-option {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 0.78rem;
+}
+
+.page-dashboard .tech-detail {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #f4f3fb;
+}
+
+.page-dashboard .tech-kicker {
+  color: var(--green-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-dashboard .tech-detail h3 {
+  margin-top: 6px;
+  font-size: 1.4rem;
+}
+
+.page-dashboard .tech-detail > p:not(.tech-kicker) {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.page-dashboard .tech-detail .tech-focus {
+  color: var(--indigo) !important;
+}
+
+.page-dashboard .challenge-panel {
+  display: grid;
+  align-content: space-between;
+  gap: 24px;
+  min-height: 100%;
+  color: #fff;
+  border-color: #21136b;
+  background:
+    radial-gradient(
+      ellipse at 100% 0,
+      rgba(143, 224, 108, 0.2),
+      transparent 40%
+    ),
+    #0d004d;
+}
+
+.page-dashboard .challenge-panel h2 {
+  margin-top: 7px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.page-dashboard .challenge-copy > p:not(.eyebrow) {
+  margin-top: 12px;
+  color: #d7d2ef;
+  font-size: 0.93rem;
+}
+
+.page-dashboard .challenge-copy .btn {
+  margin-top: 20px;
+  padding: 13px 18px;
+  font-size: 0.9rem;
+}
+
+.page-dashboard .challenge-preview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.page-dashboard .preview-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  color: var(--indigo);
+  background: #8fe06c;
+  font: 900 0.9rem var(--display);
+}
+
+.page-dashboard .challenge-preview h3 {
+  margin-top: 2px;
+  font-size: 1rem;
+}
+
+.page-dashboard .challenge-preview div > p:last-child {
+  margin-top: 3px;
+  color: #d7d2ef;
+  font-size: 0.78rem;
+}
+
+.page-dashboard .challenge-preview > a {
+  color: #fff;
+  font-size: 1.3rem;
+  text-decoration: none;
+}
+
+.page-dashboard .task-dialog {
+  width: min(540px, calc(100% - 32px));
+  max-height: min(85vh, 720px);
+  margin: auto;
+  padding: 28px;
+  overflow: auto;
+  border: 1px solid #e8e5f1;
+  border-radius: 22px;
+  color: var(--indigo);
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(13, 0, 77, 0.25);
+}
+
+.page-dashboard .task-dialog::backdrop {
+  background: rgba(13, 0, 40, 0.62);
+  backdrop-filter: blur(3px);
+}
+
+.page-dashboard .dialog-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-dashboard .dialog-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--indigo);
+  background: #f4f3fb;
+  font-size: 1.7rem;
+  cursor: pointer;
+}
+
+.page-dashboard .task-dialog h2 {
+  margin-top: 18px;
+  font-size: 1.8rem;
+}
+
+.page-dashboard .dialog-status {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  color: #267d06;
+  background: #e8f7e0;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.page-dashboard .dialog-description {
+  margin-top: 18px;
+  color: var(--muted);
+}
+
+.page-dashboard .dialog-day {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.page-dashboard .dialog-action {
+  margin-top: 24px;
+}
+
+.page-dashboard .dialog-action:disabled {
+  cursor: default;
+}
+
+.page-dashboard [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .page-dashboard .dashboard-content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .page-dashboard .tasks-panel {
+    grid-column: 1 / -1;
+  }
+
+  .page-dashboard .challenge-panel,
+  .page-dashboard .tech-panel {
+    min-height: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .page-dashboard .dashboard-welcome {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-block: 42px;
+  }
+
+  .page-dashboard .dashboard-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding-block: 24px 52px;
+  }
+
+  .page-dashboard .progress-panel,
+  .page-dashboard .tasks-panel,
+  .page-dashboard .tech-panel,
+  .page-dashboard .challenge-panel {
+    grid-column: 1;
+    padding: 22px;
+  }
+
+  .page-dashboard .tasks-heading {
+    align-items: flex-start;
+  }
+
+  .page-dashboard .task-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .page-dashboard .task-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-dashboard .progress-stats {
+    gap: 8px;
+  }
+
+  .page-dashboard .progress-stats strong {
+    font-size: 1.4rem;
+  }
+
+  .page-dashboard .progress-stats span {
+    font-size: 0.78rem;
+  }
+
+  .page-dashboard .task-filters {
+    gap: 6px;
+  }
+
+  .page-dashboard .filter-button {
+    padding-inline: 9px;
+    font-size: 0.78rem;
+  }
+
+  .page-dashboard .task-card {
+    padding: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-dashboard .progress-fill,
+  .page-dashboard .filter-button,
+  .page-dashboard .tech-option,
+  .page-dashboard .backend-option {
+    transition: none;
+  }
+}
