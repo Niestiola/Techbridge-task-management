@@ -15,7 +15,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&family=Hanken+Grotesk:wght@400;500;700&display=swap"
     rel="stylesheet" />
-  <link rel="stylesheet" href="./styles/style.css?v=20261118-2" />
+  <link rel="stylesheet" href="./styles/style.css?v=20261125-1" />
 </head>
 
 <body class="page-dashboard">
@@ -84,16 +84,48 @@
             <p class="eyebrow">Your journey</p>
             <h2 id="progress-title">Progress overview</h2>
           </div>
-          <span class="progress-percent" id="progress-percentage">25%</span>
+          <span class="progress-percent" id="progress-percentage">—</span>
         </div>
         <div class="progress-track" id="progress-track" role="progressbar" aria-label="Internship task progress"
-          aria-valuemin="0" aria-valuemax="8" aria-valuenow="2">
+          aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-valuetext="Task data is loading">
           <span class="progress-fill" id="progress-fill"></span>
         </div>
-        <div class="progress-stats" aria-live="polite">
-          <div><strong id="completed-count">2</strong><span>Completed</span></div>
-          <div><strong id="remaining-count">6</strong><span>Remaining</span></div>
-          <div><strong id="total-count">8</strong><span>Total tasks</span></div>
+        <div class="progress-stats" aria-live="polite" aria-busy="true">
+          <div><strong id="completed-count">—</strong><span>Completed</span></div>
+          <div><strong id="remaining-count">—</strong><span>Remaining</span></div>
+          <div><strong id="total-count">—</strong><span>Total tasks</span></div>
+        </div>
+      </section>
+
+      <section class="stats-panel" aria-labelledby="stats-title" aria-busy="true">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">A quick snapshot</p>
+            <h2 id="stats-title">Task status</h2>
+          </div>
+          <p class="stats-updated" id="stats-updated">Loading your task data…</p>
+        </div>
+        <div class="status-stats" id="status-stats">
+          <article class="status-stat" data-status-stat="Completed">
+            <div><span>Completed</span><strong id="stat-completed">Loading…</strong></div>
+            <div class="stat-meter" role="progressbar" aria-label="Completed tasks" aria-valuemin="0"
+              aria-valuemax="8" aria-valuenow="0"><span id="meter-completed"></span></div>
+          </article>
+          <article class="status-stat" data-status-stat="In Progress">
+            <div><span>In progress</span><strong id="stat-in-progress">Loading…</strong></div>
+            <div class="stat-meter" role="progressbar" aria-label="Tasks in progress" aria-valuemin="0"
+              aria-valuemax="8" aria-valuenow="0"><span id="meter-in-progress"></span></div>
+          </article>
+          <article class="status-stat" data-status-stat="Not Started">
+            <div><span>Not started</span><strong id="stat-not-started">Loading…</strong></div>
+            <div class="stat-meter" role="progressbar" aria-label="Tasks not started" aria-valuemin="0"
+              aria-valuemax="8" aria-valuenow="0"><span id="meter-not-started"></span></div>
+          </article>
+        </div>
+        <p class="next-milestone" id="next-milestone" hidden></p>
+        <div class="stats-empty" id="stats-empty" hidden>
+          <span aria-hidden="true">📋</span>
+          <p>No task statistics are available yet. Try again when the task service is ready.</p>
         </div>
       </section>
 
@@ -118,14 +150,20 @@
         <p class="task-results" id="task-results" aria-live="polite">Showing 8 tasks</p>
         <p class="backend-status">Status: <strong id="backend-status" data-state="checking">Checking...</strong>
         </p>
-        <p class="task-message" id="task-loading" hidden>Loading tasks...</p>
+        <p class="task-message task-loading" id="task-loading" role="status" hidden>Loading tasks…</p>
         <div class="task-message task-error" id="task-error" role="alert" hidden>
           <p><strong>Unable to load tasks.</strong></p>
-          <p>Please check your connection or try again.</p>
+          <p id="task-error-message">Check your connection and try again.</p>
           <button class="btn" id="retry-button" type="button">Try again</button>
         </div>
         <div class="task-list" id="task-list"></div>
-        <p class="empty-tasks" id="empty-tasks" hidden>No tasks match this status.</p>
+        <div class="empty-tasks" id="empty-tasks" hidden>
+          <span class="empty-icon" aria-hidden="true">🗂️</span>
+          <h3 id="empty-tasks-title">No tasks yet</h3>
+          <p id="empty-tasks-message">Your tasks will appear here when they’re available.</p>
+          <button class="text-button" id="reset-task-filter" type="button" hidden>Show all tasks</button>
+          <button class="text-button" id="retry-empty-tasks" type="button" hidden>Reload tasks</button>
+        </div>
       </section>
 
       <section class="tech-panel" aria-labelledby="tech-title">
@@ -202,6 +240,7 @@
     </div>
     <p class="legal">&copy; 2026 TechBridge by Baselink Services Limited</p>
   </footer>
+  <script src="./script/notify.js" defer></script>
   <script src="./script/script.js" defer></script>
 </body>
 

@@ -88,11 +88,15 @@ const resetFilters = document.querySelector("#reset-filters");
 const resultsStatus = document.querySelector("#results-status");
 const challengeCount = document.querySelector("#challenge-count");
 const noResults = document.querySelector("#no-results");
+const noResultsTitle = document.querySelector("#no-results-title");
+const noResultsMessage = document.querySelector("#no-results-message");
+const emptyResetFilters = document.querySelector("#empty-reset-filters");
 const challengeDialog = document.querySelector("#challenge-dialog");
 const dialogClose = document.querySelector("#dialog-close");
 const dialogTitle = document.querySelector("#dialog-title");
 const dialogTrack = document.querySelector("#dialog-track");
 const dialogBody = document.querySelector("#dialog-body");
+let challengeRenderVersion = 0;
 
 // Create a card element for a challenge object.
 function createChallengeCard(challenge) {
@@ -189,14 +193,41 @@ function renderChallenges() {
     return trackMatches && difficultyMatches;
   });
 
-  const cards = filteredChallenges.map(createChallengeCard);
-  challengeGrid.replaceChildren(...cards);
+  const cards = filteredChallenges.map((challenge, index) => {
+    const card = createChallengeCard(challenge);
+    card.style.setProperty("--item-index", index);
+    return card;
+  });
 
   const challengeWord = filteredChallenges.length === 1 ? "challenge" : "challenges";
   resultsStatus.textContent = `Showing ${filteredChallenges.length} ${challengeWord}`;
   challengeCount.textContent = String(filteredChallenges.length);
   noResults.hidden = filteredChallenges.length !== 0;
-  challengeGrid.hidden = filteredChallenges.length === 0;
+  noResultsTitle.textContent = challenges.length
+    ? "No challenges match these filters"
+    : "No challenges yet";
+  noResultsMessage.textContent = challenges.length
+    ? "Try another track or difficulty, or clear the filters to see every challenge."
+    : "New challenges will show up here when they’re available.";
+  emptyResetFilters.hidden = challenges.length === 0;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (challengeGrid.childElementCount && !reduceMotion) {
+    const version = ++challengeRenderVersion;
+    challengeGrid.classList.add("is-transitioning");
+    Array.from(challengeGrid.children).forEach((card) => card.classList.add("is-leaving"));
+    window.setTimeout(() => {
+      if (version !== challengeRenderVersion) return;
+      challengeGrid.replaceChildren(...cards);
+      challengeGrid.hidden = filteredChallenges.length === 0;
+      challengeGrid.classList.remove("is-transitioning");
+    }, 160);
+  } else {
+    challengeRenderVersion += 1;
+    challengeGrid.replaceChildren(...cards);
+    challengeGrid.hidden = filteredChallenges.length === 0;
+    challengeGrid.classList.remove("is-transitioning");
+  }
 }
 
 // Reset both filters and return to the complete challenge list.
@@ -211,6 +242,7 @@ function resetChallengeFilters() {
 trackFilter.addEventListener("change", renderChallenges);
 difficultyFilter.addEventListener("change", renderChallenges);
 resetFilters.addEventListener("click", resetChallengeFilters);
+emptyResetFilters.addEventListener("click", resetChallengeFilters);
 
 // Close the dialog using the dedicated button or a click on the backdrop.
 dialogClose.addEventListener("click", () => challengeDialog.close());

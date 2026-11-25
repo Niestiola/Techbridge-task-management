@@ -22,6 +22,9 @@
   --text: "Hanken Grotesk", system-ui, "Segoe UI", Arial, sans-serif;
   --pad: clamp(20px, 5.5vw, 80px); /* side spacing of the page */
   --radius: 28px;
+  --motion-fast: 160ms;
+  --motion-medium: 240ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   color-scheme: light;
 }
 
@@ -158,8 +161,8 @@ h3,
   border-radius: 999px;
   padding: 17px 30px;
   transition:
-    transform 0.2s ease,
-    background 0.2s;
+    transform var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
 }
 .btn:hover {
   background: #4ccb1b;
@@ -199,6 +202,79 @@ h3,
   }
   .btn:hover {
     transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-dashboard main,
+  .page-challenges main {
+    animation: content-enter var(--motion-medium) var(--ease-standard) both;
+  }
+
+  .page-dashboard .task-card,
+  .page-internship .task-card,
+  .challenge-card {
+    animation: content-enter var(--motion-medium) var(--ease-standard) both;
+    animation-delay: calc(min(var(--item-index, 0), 5) * 35ms);
+  }
+
+  .page-dashboard .task-card.is-leaving {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity var(--motion-fast) var(--ease-standard),
+      transform var(--motion-fast) var(--ease-standard);
+  }
+
+  .page-dashboard .task-list.is-transitioning {
+    pointer-events: none;
+  }
+
+  .task-dialog[open],
+  .challenge-dialog[open] {
+    animation: dialog-enter var(--motion-medium) var(--ease-standard) both;
+  }
+
+  .task-dialog[open]::backdrop,
+  .challenge-dialog[open]::backdrop {
+    animation: backdrop-enter var(--motion-medium) var(--ease-standard) both;
+  }
+}
+
+@keyframes content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -1446,7 +1522,10 @@ h3,
   font: 700 1rem var(--text);
   padding: 10px 20px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
 }
 
 .reset-button:hover {
@@ -1488,6 +1567,10 @@ h3,
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
+
+.challenge-grid[hidden] {
+  display: none;
+}
 /* Modal */
 
 .challenge-dialog {
@@ -1523,9 +1606,9 @@ h3,
   background: var(--white);
   box-shadow: 0 18px 40px rgba(13, 0, 77, 0.05);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
 }
 
 .challenge-card:hover {
@@ -1594,8 +1677,8 @@ h3,
   padding: 10px 18px;
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
 }
 
 .view-challenge:hover {
@@ -2046,8 +2129,8 @@ h3,
 .path,
 .choice {
   transition:
-    box-shadow 0.25s ease,
-    background 0.25s ease;
+    box-shadow var(--motion-medium) var(--ease-standard),
+    background-color var(--motion-medium) var(--ease-standard);
 }
 .path:hover,
 .path:focus-within {
@@ -2056,8 +2139,8 @@ h3,
 @media (prefers-reduced-motion: no-preference) {
   .path {
     transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease;
+      transform var(--motion-medium) var(--ease-standard),
+      box-shadow var(--motion-medium) var(--ease-standard);
   }
   .path:hover,
   .path:focus-within {
@@ -2577,10 +2660,10 @@ h3,
   font: 700 1rem/1.2 var(--text);
   cursor: pointer;
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
 }
 
 .track-button:hover {
@@ -2618,7 +2701,7 @@ h3,
   display: grid;
   gap: 22px;
   padding-left: 20px;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--motion-fast) var(--ease-standard);
 }
 
 .timeline::before {
@@ -2644,9 +2727,9 @@ h3,
   padding: 22px 24px 20px;
   box-shadow: 0 18px 40px rgba(13, 0, 77, 0.05);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
 }
 
 .task-card:hover {
@@ -2939,11 +3022,11 @@ h3,
 
 .page-dashboard .progress-fill {
   display: block;
-  width: 25%;
+  width: 0;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #39b80a, #8fe06c);
-  transition: width 240ms ease;
+  transition: width var(--motion-medium) var(--ease-standard);
 }
 
 .page-dashboard .progress-stats {
@@ -2993,9 +3076,9 @@ h3,
   font: 700 0.86rem/1.2 var(--text);
   cursor: pointer;
   transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease;
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
 }
 
 .page-dashboard .filter-button span {
@@ -3445,5 +3528,425 @@ h3,
   .page-dashboard .tech-option,
   .page-dashboard .backend-option {
     transition: none;
+  }
+}
+
+/* Notifications, richer empty states and responsive dashboard details. */
+.toast-stack {
+  position: fixed;
+  z-index: 30;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 10px;
+  width: min(390px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 8px 8px 8px 16px;
+  border: 1px solid #d9d6ec;
+  border-left: 5px solid var(--indigo);
+  border-radius: 14px;
+  color: var(--indigo);
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(13, 0, 77, 0.18);
+  pointer-events: auto;
+}
+
+.toast-success {
+  border-left-color: var(--green-text);
+}
+
+.toast-error {
+  border-left-color: #b42318;
+}
+
+.toast-warning {
+  border-left-color: #a15c00;
+}
+
+.toast-info {
+  border-left-color: #433487;
+}
+
+.toast-message {
+  overflow-wrap: anywhere;
+  font-size: 0.94rem;
+}
+
+.toast-close {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  color: inherit;
+  background: transparent;
+  font: 400 1.6rem/1 var(--text);
+  cursor: pointer;
+}
+
+.toast-close:hover {
+  background: var(--lavender);
+}
+
+.toast.is-dismissing {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: var(--lavender);
+  font-size: 1.6rem;
+}
+
+.page-dashboard .stats-panel {
+  grid-column: 1 / -1;
+}
+
+.page-dashboard .stats-updated {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.page-dashboard .status-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.page-dashboard .status-stat {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #eceaf2;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.page-dashboard .status-stat > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.page-dashboard .status-stat > div:first-child span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.page-dashboard .status-stat strong {
+  font: 900 1.4rem/1 var(--display);
+}
+
+.page-dashboard .stat-meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #eeedf4;
+}
+
+.page-dashboard .stat-meter span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+  transition: width var(--motion-medium) var(--ease-standard);
+}
+
+.page-dashboard [data-status-stat="In Progress"] .stat-meter span {
+  background: #7165bd;
+}
+
+.page-dashboard [data-status-stat="Not Started"] .stat-meter span {
+  background: #b8b5c8;
+}
+
+.page-dashboard .next-milestone {
+  margin-top: 16px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  color: var(--indigo);
+  background: var(--lavender);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.page-dashboard .stats-empty,
+.page-dashboard .empty-tasks,
+.page-challenges .no-results {
+  padding: 28px 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.page-dashboard .stats-empty .empty-icon,
+.page-dashboard .empty-tasks .empty-icon,
+.page-challenges .no-results .empty-icon {
+  margin-top: 0;
+}
+
+.page-dashboard .empty-tasks h3,
+.page-challenges .no-results h3 {
+  margin-bottom: 8px;
+  color: var(--indigo);
+  font: 900 1.25rem/1.2 var(--display);
+}
+
+.page-dashboard .empty-tasks p,
+.page-challenges .no-results p {
+  margin: 0 auto;
+  max-width: 46ch;
+}
+
+.page-dashboard .text-button {
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--indigo);
+  background: #fff;
+  font: 700 0.9rem/1.2 var(--text);
+  cursor: pointer;
+}
+
+.page-dashboard .text-button:hover {
+  border-color: var(--green-text);
+  background: var(--lavender);
+}
+
+.page-dashboard .task-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.page-dashboard .task-loading::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line);
+  border-top-color: var(--green-text);
+  border-radius: 50%;
+  animation: loading-spin 700ms linear infinite;
+}
+
+.page-dashboard .task-error p + p {
+  margin-top: 6px;
+}
+
+.page-dashboard .task-error .btn {
+  min-height: 44px;
+  margin-top: 12px;
+}
+
+.page-challenges .no-results .reset-button {
+  min-height: 44px;
+  margin-top: 16px;
+}
+
+.page-dashboard .filter-button,
+.page-dashboard .tech-option,
+.page-dashboard .backend-option,
+.page-dashboard .task-actions button,
+.page-dashboard .dialog-close,
+.page-dashboard .dialog-action,
+.page-challenges .view-challenge,
+.page-challenges .reset-button,
+.page-internship .track-button {
+  min-height: 44px;
+}
+
+.page-dashboard .task-actions button {
+  padding: 10px 12px;
+}
+
+.page-dashboard .dialog-close {
+  width: 44px;
+  height: 44px;
+}
+
+.page-dashboard .stats-panel[aria-busy="true"] .status-stat strong {
+  animation: stat-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes stat-pulse {
+  to {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 700px) {
+  .page-dashboard .stats-panel {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-dashboard .status-stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .page-dashboard .status-stat {
+    padding: 14px;
+  }
+
+  .page-dashboard .stats-updated {
+    max-width: 11ch;
+    font-size: 0.78rem;
+  }
+
+  .page-dashboard .progress-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .page-dashboard .dashboard-welcome,
+  .page-dashboard .dashboard-content {
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+
+  .page-dashboard .progress-panel,
+  .page-dashboard .tasks-panel,
+  .page-dashboard .stats-panel,
+  .page-dashboard .tech-panel,
+  .page-dashboard .challenge-panel {
+    padding: 18px;
+  }
+
+  .page-dashboard .task-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-dashboard .filter-button {
+    width: 100%;
+  }
+
+  .page-dashboard .task-card {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .page-dashboard .task-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+  }
+
+  .page-dashboard .task-actions button {
+    width: 100%;
+  }
+
+  .page-dashboard .tasks-heading {
+    flex-wrap: wrap;
+  }
+
+  .page-dashboard .task-dialog {
+    width: calc(100% - 24px);
+    padding: 20px;
+  }
+
+  .challenge-summary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+  }
+
+  .drawer a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .page-challenges .challenge-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 430px) {
+  .page-dashboard .welcome-copy h1 {
+    font-size: clamp(1.9rem, 9vw, 2.4rem);
+    overflow-wrap: anywhere;
+  }
+
+  .page-dashboard .intern-status {
+    width: 100%;
+  }
+
+  .page-dashboard .progress-stats span {
+    overflow-wrap: anywhere;
+  }
+
+  .page-challenges .challenge-hero h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape) {
+  .page-dashboard .dashboard-welcome {
+    padding-block: 28px;
+  }
+
+  .page-dashboard .dashboard-content {
+    padding-top: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .challenge-card.is-leaving {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity var(--motion-fast) var(--ease-standard),
+      transform var(--motion-fast) var(--ease-standard);
+  }
+
+  .challenge-grid.is-transitioning {
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.is-dismissing,
+  .page-dashboard .stat-meter span {
+    animation: none;
+    transition: none;
+  }
+
+  .page-dashboard .task-loading::before,
+  .page-dashboard .stats-panel[aria-busy="true"] .status-stat strong {
+    animation: none;
   }
 }

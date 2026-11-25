@@ -139,48 +139,6 @@ const trackButtons = document.querySelectorAll(".track-button");
 const taskTimeline = document.querySelector("#task-timeline");
 const currentTrack = document.querySelector("#current-track");
 
-// Backend uses "id"; the dashboard uses "number". Convert in one place.
-function toDashboardTask(apiTask) {
-  return { ...apiTask, number: apiTask.id };
-}
-
-function setBackendStatus(isOnline) {
-  backendStatus.textContent = isOnline ? "Connected" : "Offline";
-  backendStatus.dataset.state = isOnline ? "online" : "offline";
-}
-
-// GET /api/tasks, with loading and error states.
-async function loadTasks() {
-  taskLoading.hidden = false;   // show "Loading tasks..."
-  taskError.hidden = true;      // hide any old error
-  emptyTasks.hidden = true;
-  taskList.replaceChildren();
-  taskResults.textContent = "";
-
-  try {
-    const response = await fetch(API_URL);
-
-    // fetch does NOT throw on 404/500, so we check response.ok ourselves.
-    if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
-    }
-
-    const data = await response.json();
-    tasks = data.map(toDashboardTask);
-
-    setBackendStatus(true);
-    updateProgress();
-    renderTasks();
-  } catch (error) {
-    console.error("Could not load tasks:", error);
-    tasks = [];
-    setBackendStatus(false);
-    taskError.hidden = false;   // show the error message
-    updateProgress();
-  } finally {
-    taskLoading.hidden = true;  // runs on success AND failure
-  }
-}
 // Create one accessible task card from a track's task data.
 function createTaskCard(task) {
   const card = document.createElement("article");
@@ -289,6 +247,10 @@ const technologyData = {
 const taskList = document.querySelector("#task-list");
 const taskResults = document.querySelector("#task-results");
 const emptyTasks = document.querySelector("#empty-tasks");
+const emptyTasksTitle = document.querySelector("#empty-tasks-title");
+const emptyTasksMessage = document.querySelector("#empty-tasks-message");
+const resetTaskFilter = document.querySelector("#reset-task-filter");
+const retryEmptyTasks = document.querySelector("#retry-empty-tasks");
 const progressTrack = document.querySelector("#progress-track");
 const progressFill = document.querySelector("#progress-fill");
 const progressPercentage = document.querySelector("#progress-percentage");
@@ -312,12 +274,144 @@ const techDescription = document.querySelector("#tech-description");
 const techFocus = document.querySelector("#tech-focus");
 const taskLoading = document.querySelector("#task-loading");
 const taskError = document.querySelector("#task-error");
+const taskErrorMessage = document.querySelector("#task-error-message");
 const retryButton = document.querySelector("#retry-button");
 const backendStatus = document.querySelector("#backend-status");
+const statsPanel = document.querySelector(".stats-panel");
+const statusStats = document.querySelector("#status-stats");
+const statsUpdated = document.querySelector("#stats-updated");
+const statsEmpty = document.querySelector("#stats-empty");
+const nextMilestone = document.querySelector("#next-milestone");
 
 let activeFilter = "All";
 let activeTask = null;
 let activeTechnology = "Next.js";
+let taskRenderVersion = 0;
+let taskDataAvailable = false;
+const numberFormatter = new Intl.NumberFormat();
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
+// Backend uses "id"; the dashboard uses "number". Convert in one place.
+function toDashboardTask(apiTask) {
+  return { ...apiTask, number: apiTask.id };
+}
+
+function setBackendStatus(isOnline) {
+  backendStatus.textContent = isOnline ? "Connected" : navigator.onLine ? "Unavailable" : "Offline";
+  backendStatus.dataset.state = isOnline ? "online" : "offline";
+}
+
+function renderStats(hasError = false) {
+  const completed = tasks.filter((task) => task.status === "Completed").length;
+  const inProgress = tasks.filter((task) => task.status === "In Progress").length;
+  const notStarted = tasks.filter((task) => task.status === "Not Started").length;
+  const values = [
+    ["Completed", completed],
+    ["In Progress", inProgress],
+    ["Not Started", notStarted],
+  ];
+
+  if (!tasks.length) {
+    statusStats.hidden = true;
+    nextMilestone.hidden = true;
+    statsEmpty.hidden = false;
+    statsEmpty.querySelector("p").textContent = hasError
+      ? "Task statistics are unavailable. Check your connection and try again."
+      : "No task statistics are available yet. Try again when tasks have been added.";
+    statsUpdated.textContent = hasError ? "Unable to update" : "No task data yet";
+    return;
+  }
+
+  statusStats.hidden = false;
+  statsEmpty.hidden = true;
+  values.forEach(([status, count]) => {
+    const formattedCount = numberFormatter.format(count);
+    const value = document.querySelector(`#stat-${status.toLowerCase().replace(" ", "-")}`);
+    const meter = document.querySelector(`#meter-${status.toLowerCase().replace(" ", "-")}`);
+    const progress = meter.parentElement;
+    value.textContent = formattedCount;
+    meter.style.width = `${(count / tasks.length) * 100}%`;
+    progress.setAttribute("aria-valuemax", String(tasks.length));
+    progress.setAttribute("aria-valuenow", String(count));
+    progress.setAttribute("aria-valuetext", `${formattedCount} of ${numberFormatter.format(tasks.length)} tasks`);
+  });
+
+  const nextTask = tasks
+    .filter((task) => task.status !== "Completed")
+    .sort((first, second) => first.day - second.day)[0];
+  if (nextTask) {
+    nextMilestone.hidden = false;
+    nextMilestone.textContent = `Next milestone: ${nextTask.title} · Day ${numberFormatter.format(nextTask.day)}`;
+  } else {
+    nextMilestone.hidden = false;
+    nextMilestone.textContent = "All task milestones are complete.";
+  }
+  statsUpdated.textContent = `Updated ${dateFormatter.format(new Date())}`;
+}
+
+// GET /api/tasks, with clear loading, empty and retry states.
+async function loadTasks() {
+  taskLoading.hidden = false;
+  taskError.hidden = true;
+  emptyTasks.hidden = true;
+  statsPanel.setAttribute("aria-busy", "true");
+  statusStats.hidden = false;
+  statsEmpty.hidden = true;
+  nextMilestone.hidden = true;
+  statsUpdated.textContent = "Loading your task data…";
+  statusStats.querySelectorAll("strong").forEach((value) => {
+    value.textContent = "Loading…";
+  });
+  statusStats.querySelectorAll(".stat-meter span").forEach((meter) => {
+    meter.style.width = "0";
+  });
+  taskList.replaceChildren();
+  taskResults.textContent = "";
+
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error("The task service returned an unsuccessful response.");
+    }
+
+    const data = await response.json();
+    if (!Array.isArray(data) || !data.every((task) =>
+      task &&
+      Number.isInteger(task.id) &&
+      Number.isInteger(task.day) &&
+      typeof task.title === "string" &&
+      typeof task.description === "string" &&
+      ["Completed", "In Progress", "Not Started"].includes(task.status)
+    )) {
+      throw new Error("The task service returned an unexpected response.");
+    }
+
+    tasks = data.map(toDashboardTask);
+    taskDataAvailable = true;
+    setBackendStatus(true);
+    updateProgress();
+    renderStats();
+    renderTasks();
+  } catch {
+    tasks = [];
+    taskDataAvailable = false;
+    setBackendStatus(false);
+    taskError.hidden = false;
+    taskErrorMessage.textContent = navigator.onLine
+      ? "The task service could not be reached. Please try again in a moment."
+      : "You appear to be offline. Reconnect to the internet, then try again.";
+    updateProgress();
+    renderStats(true);
+  } finally {
+    statsPanel.setAttribute("aria-busy", "false");
+    document.querySelector(".progress-stats").setAttribute("aria-busy", "false");
+    taskLoading.hidden = true;
+  }
+}
 
 function createTaskCard(task) {
   const card = document.createElement("article");
@@ -357,7 +451,7 @@ function createTaskCard(task) {
   completeButton.className = "complete-task";
   completeButton.textContent = task.status === "Completed" ? "Completed" : "Mark As Completed";
   completeButton.disabled = task.status === "Completed";
-  completeButton.addEventListener("click", () => completeTask(task));
+  completeButton.addEventListener("click", () => completeTask(task, completeButton));
   actions.append(viewButton, completeButton);
 
   card.append(number, copy, actions);
@@ -366,9 +460,40 @@ function createTaskCard(task) {
 
 function renderTasks() {
   const filteredTasks = tasks.filter((task) => activeFilter === "All" || task.status === activeFilter);
-  taskList.replaceChildren(...filteredTasks.map(createTaskCard));
-  taskResults.textContent = `Showing ${filteredTasks.length} ${filteredTasks.length === 1 ? "task" : "tasks"}`;
-  emptyTasks.hidden = filteredTasks.length !== 0;
+  const cards = filteredTasks.map((task, index) => {
+    const card = createTaskCard(task);
+    card.style.setProperty("--item-index", index);
+    return card;
+  });
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (taskList.childElementCount && !reduceMotion) {
+    const version = ++taskRenderVersion;
+    taskList.classList.add("is-transitioning");
+    Array.from(taskList.children).forEach((card) => card.classList.add("is-leaving"));
+    window.setTimeout(() => {
+      if (version !== taskRenderVersion) return;
+      taskList.replaceChildren(...cards);
+      taskList.classList.remove("is-transitioning");
+    }, 160);
+  } else {
+    taskRenderVersion += 1;
+    taskList.replaceChildren(...cards);
+    taskList.classList.remove("is-transitioning");
+  }
+
+  taskResults.textContent = tasks.length
+    ? `Showing ${numberFormatter.format(filteredTasks.length)} ${filteredTasks.length === 1 ? "task" : "tasks"}`
+    : "";
+  const isEmpty = !tasks.length || !filteredTasks.length;
+  emptyTasks.hidden = !isEmpty;
+  const noData = tasks.length === 0;
+  emptyTasksTitle.textContent = noData ? "No tasks yet" : "No tasks match this status";
+  emptyTasksMessage.textContent = noData
+    ? "Your tasks will appear here when they’re available."
+    : "Choose another status or show all tasks to see your full tracker.";
+  resetTaskFilter.hidden = noData || activeFilter === "All";
+  retryEmptyTasks.hidden = !noData;
 
   document.querySelectorAll("[data-filter-count]").forEach((count) => {
     const status = count.dataset.filterCount;
@@ -378,39 +503,39 @@ function renderTasks() {
 }
 
 function updateProgress() {
-  const percentage = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
-  
+  const progressStats = document.querySelector(".progress-stats");
+  progressStats.setAttribute("aria-busy", String(!taskDataAvailable));
+  if (!taskDataAvailable) {
+    completedCount.textContent = "—";
+    remainingCount.textContent = "—";
+    totalCount.textContent = "—";
+    progressPercentage.textContent = "—";
+    progressFill.style.width = "0";
+    progressTrack.setAttribute("aria-valuemax", "0");
+    progressTrack.setAttribute("aria-valuenow", "0");
+    progressTrack.setAttribute("aria-valuetext", "Task data is unavailable");
+    return;
+  }
 
-  completedCount.textContent = String(completed);
-  remainingCount.textContent = String(tasks.length - completed);
-  totalCount.textContent = String(tasks.length);
+  const completed = tasks.filter((task) => task.status === "Completed").length;
+  const percentage = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
+
+  completedCount.textContent = numberFormatter.format(completed);
+  remainingCount.textContent = numberFormatter.format(tasks.length - completed);
+  totalCount.textContent = numberFormatter.format(tasks.length);
   progressPercentage.textContent = `${percentage}%`;
   progressFill.style.width = `${percentage}%`;
   progressTrack.setAttribute("aria-valuemax", String(tasks.length));
   progressTrack.setAttribute("aria-valuenow", String(completed));
   progressTrack.setAttribute("aria-valuetext", `${completed} of ${tasks.length} tasks completed`);
 
-  if (completed === tasks.length) {
+  if (tasks.length > 0 && completed === tasks.length) {
     document.querySelector("#intern-status").textContent = "Internship complete";
   } else {
     document.querySelector("#intern-status").textContent = "Active intern";
   }
 }
 
-// function openTask(task) {
-//   activeTask = task;
-//   dialogTaskNumber.textContent = `Task ${task.number} · Day ${task.day}`;
-//   dialogTitle.textContent = task.title;
-//   dialogStatus.textContent = task.status;
-//   dialogDescription.textContent = task.description;
-//   dialogDay.textContent = `Suggested milestone: Day ${task.day} of your 30-day internship`;
-//   dialogAction.textContent = task.status === "Completed" ? "Completed" : "Mark As Completed";
-//   dialogAction.disabled = task.status === "Completed";
-//   if (!taskDialog.open) {
-//     taskDialog.showModal();
-//   }
-// }
-// Fill in and show the dialog (this is your old openTask body).
 function showTaskDialog(task) {
   activeTask = task;
   dialogTaskNumber.textContent = `Task ${task.number} · Day ${task.day}`;
@@ -435,32 +560,22 @@ async function openTask(task) {
     const data = await response.json();
     setBackendStatus(true);
     showTaskDialog(toDashboardTask(data));
-  } catch (error) {
-    console.error("Could not load task:", error);
+  } catch {
     setBackendStatus(false);
-    alert("Unable to load this task. Please check that the backend is running.");
+    notify.error(navigator.onLine
+      ? "We couldn’t load this task. Please try again."
+      : "You’re offline. Reconnect and try loading this task again.");
   }
 }
 
-// function completeTask(task) {
-//   if (task.status === "Completed") {
-//     return;
-//   }
-
-//   task.status = "Completed";
-//   updateProgress();
-//   renderTasks();
-
-//   if (activeTask === task && taskDialog.open) {
-//     openTask(task);
-//   }
-// }
 // PUT /api/tasks/:id with the new status.
-async function completeTask(task) {
+async function completeTask(task, trigger = dialogAction) {
   if (task.status === "Completed") {
     return;
   }
 
+  trigger.disabled = true;
+  let saved = false;
   try {
     const response = await fetch(`${API_URL}/${task.number}`, {
       method: "PUT",
@@ -469,26 +584,37 @@ async function completeTask(task) {
     });
 
     if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
+      throw new Error("The task service could not save the update.");
     }
 
     // The backend returns the updated task. Use it as the source of truth.
     const updated = toDashboardTask(await response.json());
     const index = tasks.findIndex((item) => item.number === updated.number);
+    if (index === -1) {
+      throw new Error("The task is no longer available.");
+    }
     tasks[index] = updated;
 
     setBackendStatus(true);
     updateProgress();
+    renderStats();
     renderTasks();
+    notify.success("Task marked as complete.");
 
     // If the dialog is open for this task, refresh it.
     if (activeTask && activeTask.number === updated.number && taskDialog.open) {
       showTaskDialog(updated);
     }
-  } catch (error) {
-    console.error("Could not update task:", error);
+    saved = true;
+  } catch {
     setBackendStatus(false);
-    alert("Unable to update the task. Please check that the backend is running.");
+    notify.error(navigator.onLine
+      ? "We couldn’t save this task update. Please try again."
+      : "You’re offline. Reconnect before saving this task update.");
+  } finally {
+    if (!saved) {
+      trigger.disabled = false;
+    }
   }
 }
 
@@ -563,7 +689,7 @@ filterButtons.forEach((button) => {
 
 dialogAction.addEventListener("click", () => {
   if (activeTask) {
-    completeTask(activeTask);
+    completeTask(activeTask, dialogAction);
   }
 });
 
@@ -574,11 +700,18 @@ taskDialog.addEventListener("click", (event) => {
   }
 });
 
-// updateProgress();
-// renderTasks();
-// selectTechnology("Next.js");
-// })();
 retryButton.addEventListener("click", loadTasks);
+retryEmptyTasks.addEventListener("click", loadTasks);
+resetTaskFilter.addEventListener("click", () => {
+  const allFilter = document.querySelector('.filter-button[data-status="All"]');
+  activeFilter = "All";
+  filterButtons.forEach((filter) => {
+    filter.setAttribute("aria-pressed", String(filter === allFilter));
+  });
+  renderTasks();
+  allFilter.focus();
+});
 
-loadTasks(); // fetch tasks from the backend on page load
-selectTechnology("Next.js")});
+loadTasks();
+selectTechnology("Next.js");
+})();

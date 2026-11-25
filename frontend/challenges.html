@@ -15,7 +15,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&family=Hanken+Grotesk:wght@400;500;700&display=swap"
     rel="stylesheet" />
-  <link rel="stylesheet" href="./styles/style.css?v=20261118-2" />
+  <link rel="stylesheet" href="./styles/style.css?v=20261125-1" />
 </head>
 
 <body class="page-challenges">
@@ -115,8 +115,10 @@
       <p class="results-status" id="results-status" aria-live="polite">Showing 6 challenges</p>
       <div class="challenge-grid" id="challenge-grid"></div>
       <div class="no-results" id="no-results" hidden>
-        <h3>No challenges found</h3>
-        <p>Try changing one or both filters to see more opportunities.</p>
+        <span class="empty-icon" aria-hidden="true">🔎</span>
+        <h3 id="no-results-title">No challenges match these filters</h3>
+        <p id="no-results-message">Try another track or difficulty, or clear the filters to see every challenge.</p>
+        <button class="reset-button" id="empty-reset-filters" type="button">Clear filters</button>
       </div>
     </section>
   </main>
@@ -160,6 +162,7 @@
   </footer>
 
   <!-- JavaScript owns all challenge filtering and detail interactions. -->
+  <script src="./script/notify.js" defer></script>
   <script src="./script/challenges.js" defer></script>
 </body>
 
